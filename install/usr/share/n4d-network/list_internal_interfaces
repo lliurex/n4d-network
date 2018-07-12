@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+import os.path
+import json
+path_var = "/var/lib/n4d/variables-dir/INTERNAL_INTERFACE"
+if os.path.exists( path_var ):
+        fd = open(path_var,'r')
+        var = json.load(fd)
+        try:
+                result = var['INTERNAL_INTERFACE']['value'].encode('UTF-8')
+                if (type(result) == type('')):
+                        print result
+                elif (type(result) == type([])):
+                        print " ".join(result)
+                else:
+                        print ""
+        except:
+                print ""
+else:
+        print ""

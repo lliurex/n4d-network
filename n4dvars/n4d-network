@@ -1,0 +1,42 @@
+{
+    "INTERNAL_INTERFACE": {
+        "function": "lliurex.variables.internal_interface.init", 
+        "packages": [
+            "n4d-network"
+        ], 
+        "description": "Internal device interface", 
+        "value": null
+    },
+    "EXTERNAL_INTERFACE": {
+        "function": "lliurex.variables.external_interface.init", 
+        "packages": [
+            "n4d-network"
+        ], 
+        "description": "External device interface", 
+        "value": null
+    },
+    "INTERNAL_MASK": {
+        "function": "lliurex.variables.internal_mask.init", 
+        "packages": [
+            "n4d-network"
+        ], 
+        "description": "decimal format to internal mask", 
+        "value": null
+    }, 
+    "SRV_IP": {
+        "function": "lliurex.variables.srv_ip.init", 
+        "packages": [
+            "n4d-network"
+        ], 
+        "description": "server ip to clients ", 
+        "value": null
+    }, 
+    "INTERNAL_NETWORK": {
+        "function": "lliurex.variables.internal_network.init", 
+        "packages": [
+            "n4d-network"
+        ], 
+        "description": "internal address network ", 
+        "value": null
+    }
+}

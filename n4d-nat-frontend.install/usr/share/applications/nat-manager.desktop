@@ -1,0 +1,17 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=nat-manager
+Name[en]=Routing and Nat Manager
+Name[es]=Gestor de Enrutamiento y NAT
+Name[ca_ES@valencia]=Gestió d'encaminament i NAT
+Comment=Routing and Nat Manager
+Comment[es]=Gestor de Enrutamiento y NAT
+Comment[ca_ES@valencia]=Gestió d'encaminament i NAT
+Exec= pe nat-manager.zmd
+Terminal=false
+Icon=nat-manager
+Type=Application
+GenericName=nat-manager
+NoDisplay=true
+Categories=Network;

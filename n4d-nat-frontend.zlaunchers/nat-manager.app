@@ -1,0 +1,13 @@
+Name=nat-manager
+Name[en]=Routing and Nat Manager
+Name[es]=Gestor de Enrutamiento y NAT
+Name[ca_ES@valencia]=Gestió d'encaminament i NAT
+Comment=Routing and Nat Manager
+Comment[es]=Gestor de Enrutamiento y NAT
+Comment[ca_ES@valencia]=Gestió d'encaminament i NAT
+Icon=n4d-nat-frontend
+Groups=adm;admins
+Category=Network
+ScriptPath=nat-manager.zmd
+Using=pe 
+Service=False
