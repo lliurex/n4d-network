@@ -13,8 +13,3 @@
 	#dh $@ --with  n4d-vars,i18n
 	dh $@ --with  i18n
 
-
-override_dh_install:
-
-	dllxh_install
-	dh_install
