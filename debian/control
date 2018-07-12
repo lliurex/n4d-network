@@ -1,0 +1,22 @@
+Source: n4d-network
+Section: admin
+Priority: extra
+Maintainer: Equipo LliureX <lliurex@gva.es>
+Uploaders: Angel Berlanas Vicente <lliurex_devel2@edu.gva.es>, Raul Rodrigo Segura <lliurex_devel3@edu.gva.es>, David Montalva Furio <montalva_dav@gva.es>, Alfons Lloret Sananton <lliurex_devel5@edu.gva.es>, Enrique Medina Gremaldos <lliurex_devel4@edu.gva.es>, Hector Garcia Huerta <lliurex_devel1@edu.gva.es>, Jose Carlos Garcia Monsalvez <garcia_josmon@gva.es>, Jaime Munyoz Fayos <munyoz_jaifay@gva.es>, Miguel Garcia Gomez <garcia_miggom@gva.es>
+Build-Depends: debhelper (>= 8.0.0),n4d-dev, zero-dev
+Standards-Version: 3.9.3
+Homepage: http://www.lliurex.net
+#Vcs-Svn: http://svn.lliurex.net/pandora/n4d-network/trunk
+
+Package: n4d-nat-frontend
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet, python2.7, llxcfg-runtime
+Description: GUI to configure NAT and Routing 
+ GUI to configure NAT and Routing based on n4d-network
+
+
+Package: n4d-network
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet (>=0.18), python2.7, n4d-lliurex-base (>=0.7)
+Description: N4D plugin to configure network interface
+ Utility by configure interface, mask, etc
