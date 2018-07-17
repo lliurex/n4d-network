@@ -1,0 +1,4 @@
+CMD=/usr/sbin/nat-manager
+PREFIX=net.lliurex.zero-center.pkexec
+ICON=
+XREQUIRED=yes
