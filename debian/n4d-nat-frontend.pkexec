@@ -6,6 +6,6 @@
 	"auths":[
 		{"type":"group","members":["admins","teachers","adm"],"active":"yes"}
 	],
-	"requiredx":true,
+	"requiredx":true
 	}
 ]
