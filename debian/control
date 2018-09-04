@@ -2,15 +2,14 @@ Source: n4d-network
 Section: admin
 Priority: extra
 Maintainer: Equipo LliureX <lliurex@gva.es>
-#Build-Depends: debhelper (>= 8.0.0), n4d-dev, zero-dev, python3-poinstaller
-Build-Depends: debhelper (>= 8.0.0), n4d-dev, pkexec-debhelper, python3-poinstaller
+Build-Depends: debhelper (>= 8.0.0), n4d-dev, pkexec-debhelper, python3-poinstaller, zero-dev
 Standards-Version: 4.1.2
 Homepage: http://www.lliurex.net
 #Vcs-Svn: http://svn.lliurex.net/pandora/n4d-network/trunk
 
 Package: n4d-nat-frontend
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet, python2.7, llxcfg-runtime
+Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet, python2.7, policykit-1
 Description: GUI to configure NAT and Routing 
  GUI to configure NAT and Routing based on n4d-network
 

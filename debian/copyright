@@ -1,9 +1,10 @@
 Format: http://dep.debian.net/deps/dep5
 Upstream-Name: n4d-network
-Source: http://svn.lliurex.net/pandora/n4d-network
+Source: http://
 
 Files: *
-Copyright: 2012 Raul Rodrigo Segura <lliurex_devel3@edu.gva.es> 
+Copyright: 2012 Raul Rodrigo Segura <raurodse@gmail.com>
+	   2012 Hector Garcia Huerta <hectorgh@gmail.com>
 License: GPL-3.0+
 
 License: GPL-3.0+
