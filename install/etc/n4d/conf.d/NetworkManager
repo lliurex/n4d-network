@@ -4,7 +4,6 @@ path=NetworkManager.py
 class=NetworkManager
 [METHODS]
 get_interfaces=anonymous
-get_interfaces_network_file=anonymous
 load_network_file=adm,admins
 set_internal_interface=adm,admins
 set_external_interface=adm,admins
