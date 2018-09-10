@@ -9,7 +9,7 @@ Homepage: http://www.lliurex.net
 
 Package: n4d-nat-frontend
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet, python2.7, policykit-1
+Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet, python2.7, policykit-1, python-yaml
 Description: GUI to configure NAT and Routing 
  GUI to configure NAT and Routing based on n4d-network
 
