@@ -9,5 +9,5 @@ Icon=n4d-nat-frontend
 Groups=adm;admins
 Category=Network
 ScriptPath=nat-manager.zmd
-Using=pe 
+Using=pkexec
 Service=False
