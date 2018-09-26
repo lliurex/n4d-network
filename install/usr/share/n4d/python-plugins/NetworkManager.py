@@ -1,21 +1,20 @@
 import lliurex.net
-import lliurex.interfacesparser
-import subprocess
+import dbus
+import yaml
+from netaddr import IPNetwork, IPAddress
 import os
-import tempfile
-import shutil
-import time
-import tarfile
+import subprocess
+import mmap
+
 class NetworkManager:
 	def __init__(self):
-		self.path_interfaces = '/etc/network/interfaces'
-		self.interfaces = lliurex.interfacesparser.InterfacesParser()
-		self.interfaces.load(self.path_interfaces)
-		self.backup_files=["/etc/network/interfaces", "/etc/init/network-manager.override"]
-		self.rules_file="/etc/udev/rules.d/70-persistent-net.rules"
-		
-		
+		self.systembus = dbus.SystemBus()
+		systemd1 = self.systembus.get_object('org.freedesktop.systemd1','/org/freedesktop/systemd1')
+		self.systemdmanager = dbus.Interface(systemd1,'org.freedesktop.systemd1.Manager')
+		self.network_file = "/etc/netplan/20-lliurex.yaml"
+		self.replication_network_file = "/etc/netplan/30-replication-lliurex.yaml"
 	#def __init__
+
 	def startup(self,options):
 		self.internal_interface = objects['VariablesManager'].get_variable('INTERNAL_INTERFACE')
 		self.external_interface = objects['VariablesManager'].get_variable('EXTERNAL_INTERFACE')
@@ -24,62 +23,61 @@ class NetworkManager:
 	def get_interfaces(self):
 		return {'status':True,'msg':[x['name'] for x in lliurex.net.get_devices_info()]}
 	#def get_interfaces
-	
-	def get_interfaces_network_file(self):
-		return {'status':True,'msg':self.interfaces.get_list_interfaces()}
-	#def get_interfaces_network_file
 
 	def delete_interfaces_in_range(self,range_ip):
-
-		for iface in self.interfaces.get_interfaces_in_range(range_ip):
-			self.interfaces.delete_all_interface(iface)
-
-		return {'status':True,'msg':'Old replication interfaces removed'}
-
+		#
+		#
+		#  Esta funcion la utiliza el zero-server-wizard para limpiar la interfaz virtual, esto se deberia de arraglar de otra forma
+		#
+		#
+		pass
 	#def delete_interfaces_in_range
 
 	def load_network_file(self):
-		try:
-			self.interfaces.load('/etc/network/interfaces')
-		except Exception as e:
-			if "not exists" in e.message :
-				return {'status':False,'msg':'File not exist'}
-		
-		return {'status':True,'msg':'Reload file'}
+		self.config = self.load_network_config(self.network_file)
+		self.replication_config = self.load_network_config()
 	#def load_network_file
+
+	def load_network_config(self,path_file):
+		with open(path_file) as fd:
+			config = yaml.load(fd)
+		
+		if not 'network' in config:
+			config['network'] = {}
+		
+		if not 'version' in config['network']:
+			config['network']['version'] = 2
+		if not 'renderer' in config['network']:
+			config['network']['renderer'] = 'NetworkManager'
+		return config
 	
 	def set_internal_interface(self, interface):
+
+		ip, netmask = None, None
+
 		objects['VariablesManager'].init_variable('INTERNAL_INTERFACE',{'internal_interface':interface})
 		self.internal_interface = interface
-		
-		ip = None
-		netmask = None
-		listinfo = self.interfaces.get_info_interface(interface)
-		for stanza in listinfo:
-			if(stanza.__class__.__name__ == 'StanzaIface'):
-				if (stanza.method == 'static' ):
-					for option in stanza.options:
-						if (option.startswith('address')):
-							try:
-								ip = option.split(" ")[1]
-							except Exception as e:
-								pass
-						if (option.startswith('netmask')):
-							try:
-								netmask = option.split(" ")[1]
-							except Exception as e:
-								pass
-		if(ip == None):
+		try:
+			ip = self.config['network']['ethernets'][interface]['addresses'][0]
+			netmask = str(IPNetwork(ip).netmask)
+		except:
+			pass
+		if (ip == None):
 			ip = lliurex.net.get_ip(interface)
 		if(netmask == None):
 			netmask = lliurex.net.get_netmask(interface)
 			
 		if (ip != None and netmask != None):
-			objects['VariablesManager'].init_variable('INTERNAL_NETWORK',{'ip':ip,'netmask':netmask})
-			objects['VariablesManager'].init_variable('INTERNAL_MASK',{'internal_mask':netmask})
-			objects['VariablesManager'].init_variable('SRV_IP',{'ip':ip})
+			self.set_n4d_network_vars(ip, netmask)
 		return {'status':True,'msg':'internal interface'}
+		
 	#def set_internal_interfaces
+
+	def set_n4d_network_vars(self, ip, netmask):
+		objects['VariablesManager'].init_variable('INTERNAL_NETWORK',{'ip':ip,'netmask':netmask})
+		objects['VariablesManager'].init_variable('INTERNAL_MASK',{'internal_mask':netmask})
+		objects['VariablesManager'].init_variable('SRV_IP',{'ip':ip})
+	#def set_n4d_network_vars
 
 	def set_external_interface(self, interface):
 		objects['VariablesManager'].init_variable('EXTERNAL_INTERFACE',{'external_interface':interface})
@@ -93,55 +91,108 @@ class NetworkManager:
 		if otf:
 			os.system('dhclient ' + interface)
 		
-		if interface in self.interfaces.get_list_interfaces():
-			self.interfaces.change_to_dhcp(interface)
-		else:
-			aux_stanza_auto = lliurex.interfacesparser.StanzaAuto([interface])
-			aux_stanza_dhcp = lliurex.interfacesparser.StanzaIface([interface],"inet dhcp")
-			self.interfaces.insert_stanza(aux_stanza_auto)
-			self.interfaces.insert_stanza(aux_stanza_dhcp)
-		self.interfaces.write_file(self.path_interfaces)
+		self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4'],True)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6'],True)
+
+		# Falta que se escriba el fichero
+		self.safe_config('network')
 		return {'status':True,'msg':'Interface ' + interface + " has been changed to dhcp"}
 	
-	def interface_static(self, interface, ip,netmask,otf, gateway=None,dnssearch=None):
+	#def interface_dhcp
+
+	def interface_static(self, interface, ip, netmask, otf, gateway=None, dnssearch=None):
+
 		if otf:
-			os.system('ifconfig '+ interface+' ' + ip + ' netmask ' + netmask)
-			if gateway != None:
-				os.system('route add default gw ' + gateway)
-		if  interface in self.interfaces.get_list_interfaces():
-			options = {'address':ip ,'netmask':netmask}
-			if gateway != None:
-				options['gateway'] = gateway
-			if dnssearch != None:
-				options['dns-search'] = dnssearch
-			self.interfaces.change_to_static(interface,options)
-		else:
-			
-			options = []
-			if gateway != None:
-				options.append("gateway " + gateway)
-			if dnssearch != None:
-				options.append("dns-search " + dnssearch)
-			aux_stanza_auto = lliurex.interfacesparser.StanzaAuto([interface])
-			aux_stanza_static = lliurex.interfacesparser.StanzaIface([interface],"inet dhcp")
-			aux_stanza_static.change_to_static(ip,netmask,options)
-			self.interfaces.insert_stanza(aux_stanza_auto)
-			self.interfaces.insert_stanza(aux_stanza_static)
-		
-		self.interfaces.write_file(self.path_interfaces)
-		if interface == self.internal_interface:
-			objects['VariablesManager'].init_variable('INTERNAL_NETWORK',{'ip':ip,'netmask':netmask})
-			objects['VariablesManager'].init_variable('INTERNAL_MASK',{'internal_mask':netmask})
-			objects['VariablesManager'].init_variable('SRV_IP',{'ip':ip})
-			
-			# Restarting internal interface. Initialization behaves better this way
-			os.system("ip addr flush dev %s"%interface)
-			os.system("ifdown %s; ifup %s"%(interface,interface))
-		
-		
+			cmd = "ip addr add {ip}/{netmask} dev {interface}".format(ip=ip, netmask=netmask, interface=interface)
+			os.system(cmd)
+			if gateway is not None:
+				cmd = "ip route add default via 192.168.50.100"
+				os.system(cmd)
+
+		bits_netmask = IPAddress(netmask).netmask_bits()
+		self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'addresses',0], '{ip}/{mask}'.format(ip=ip,mask=bits_netmask))
+		if gateway is not None:
+			self.secure_insert_dictionary(self.config,['network','ethernets',interface,'gateway4'], gateway )
+		if dnssearch is not None:
+			self.secure_insert_dictionary(self.config,['network','ethernets',interface,'nameservers','search',0], dnssearch)
+
+		self.set_n4d_network_vars(ip, netmask)
+		self.safe_config('network')
 		return {'status':True,'msg':'Interface ' + interface + " has been changed to static "}
-	
-	
+	#def interface_static
+
+	def set_replication_interface(self, interface, ip=None, netmask=None, enabled=True):
+		if not enabled:
+			self.secure_delete_key_dictionary(self.replication_config,['network','ethernets'])
+		elif ip is not None and netmask is not None:
+			bits_netmask = IPAddress(netmask).netmask_bits()
+			self.secure_insert_dictionary(self.replication_config,['network','ethernets',interface,'addresses',0],'{ip}/{mask}'.format(ip=ip, mask=bits_netmask))
+		self.safe_config('replication')
+	#def set_replication_interface
+
+	def safe_config(self, config_to_save):
+		if config_to_save == 'network':
+			config = self.config
+			file_config = self.network_file
+		elif config_to_save == 'replication':
+			config = self.replication_config
+			file_config = self.replication_network_file
+
+		with open(file_config,'w') as stream:
+			yaml.dump(config, stream)
+	#def safe_config
+
+
+	def secure_insert_dictionary(self, target, key_path, value):
+		temp_target = target
+		for index in range(0, len(key_path) - 1): 
+			key_path_key = key_path[index]
+			type_value = type(key_path_key)
+			found = False
+			if type_value == int:
+				try:
+					variable_useless = temp_target[key_path_key]
+					found = True if not variable_useless is None else False
+				except:
+					pass
+			elif type_value == str:
+				if key_path_key in temp_target:
+					found = True
+			if not found:
+				if isinstance(temp_target, list) and isinstance(key_path_key, int)\
+									  and (len(temp_target) - 1) < key_path_key:
+					while (len(temp_target)-1) < key_path_key:
+						temp_target.append(None)
+				if isinstance(key_path[index+1], int):
+					temp_target[key_path_key] = []
+				else:
+					temp_target[key_path_key] = {}
+			temp_target = temp_target[key_path_key]
+
+		if isinstance(temp_target, list) and isinstance(key_path[-1], int) and \
+										(len(temp_target) - 1) < key_path[-1]:
+			while (len(temp_target)-1) < key_path[-1]:
+				temp_target.append(None)
+		temp_target[key_path[-1]] = value
+		return target
+	#def secure_insert_dictionary
+
+	def secure_delete_key_dictionary(self, target, key_path):
+		temp_target = target
+		for key in key_path[:-1]:
+			if isinstance(key, str) and (key not in temp_target):
+				return True
+			if isinstance(key, int) and key >= len(temp_target):
+				return True
+			temp_target = temp_target[key]
+		try:
+			del temp_target[key_path[-1]]
+		except (IndexError, KeyError) as e:
+			pass
+	#def secure_delete_key_dictionary
+
 	def get_info_eth(self,eth):
 		if type(eth) == type(""):
 			return {'status':True,'msg':lliurex.net.get_device_info(eth)}
@@ -150,30 +201,12 @@ class NetworkManager:
 	#def get_info_eth
 	
 	def set_nat(self, enable=True, persistent=False , eth=None):
-		if eth == None:
-			if self.external_interface == None:
-				return {'status':False,'msg':'External interface is not defined'}
-			else:
-				eth = self.external_interface
-		if persistent:
-			try:
-				if enable:
-					self.interfaces.enable_nat([eth],'/usr/share/n4d-network/list_internal_interfaces')
-				else:
-					self.interfaces.disable_nat([eth])
-			except Exception as e:
-				return {'status':False,'msg':e.message}
-			self.interfaces.write_file(self.path_interfaces)
-		script = ['enablenat']
-		if enable:
-			script.append('A')
+		if enabled:
+			self.systemdmanager.EnableUnitFiles(['enablenat.service'],not persistent, True)
+			self.systemdmanager.StartUnit('enablenat.service')
 		else:
-			script.append('D')
-		script.append('/usr/share/n4d-network/list_internal_interfaces')
-		script.append(eth)
-		p = subprocess.Popen(script,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-		result = p.communicate()[0]
-		return {'status':True,'msg':'nat is set'}
+			self.systemdmanager.DisableUnitFiles(['enablenat.service'],not persistent, True)
+			self.systemdmanager.StopUnit('enablenat.service')
 	#def set_nat
 	
 	def get_nat(self):
@@ -189,26 +222,33 @@ class NetworkManager:
 	#def get_nat
 	
 	def set_routing(self, enable=True, persistent=False):
-		if enable:
-			self.interfaces.enable_forwarding_ipv4(persistent)
-		else:
-			self.interfaces.disable_forwarding_ipv4(persistent)
-		return {'status':True,'msg': 'routing set'}
+		value = 1 if enable else 0
+		with open('/proc/sys/net/ipv4/ip_forward','w') as fd:
+			fd.write(value)
+		with open('/proc/sys/net/ipv6/conf/all/forwarding','w') as fd:
+			fd.write(value)
+		if persistent:
+			self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv4.ip_forward','net.ipv4.ip_forward=1')
+			self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=1')
+		
+
 	#def set_routing
 	
 	def get_routing(self):
-		ret=self.interfaces.is_enable_forwarding_ipv4()
-		if ret:
-			msg="Routing is enabled"
-		else:
-			msg="Routing is disabled"
-		return {'status':ret,'msg':msg}
+		ret = False
+		try:
+			with open('/proc/sys/net/ipv4/ip_forward','r') as fd:
+				ret = fd.readlines()[0].strip() == 0
+		except:
+			pass
+		msg_value = "enabled" if ret else "disabled"
+		return {'status':ret,'msg':'Routing is {msg_value}'.format(msg_value=msg_value)}
 	#def get_routing
 
 	def get_nat_persistence(self):
 		if self.external_interface != None:
-			result = self.interfaces.get_nat_persistent(self.external_interface)
-			status = 'enabled' if result else 'disabled'
+			status = str(self.systemdmanager.GetUnitFileState('enablenat.service'))
+			result = status == 'enabled'
 		else:
 			result = False
 			status = 'disabled'
@@ -216,123 +256,37 @@ class NetworkManager:
 	#def get_nat_persistent
 
 	def get_routing_persistence(self):
-		result = self.interfaces.get_routing_persistent('ipv4')
-		if result :
-			return {'status':result,'msg':'Routing persistent is enabled'}
-		else:
-			return {'status':result,'msg':'Routing persistent is disabled'}
+
+		with open('/etc/sysctl.d/10-lliurex-forwarding.conf','r') as fd:
+			s = mmap.mmap(fd.fileno(), 0, access=mmap.ACCESS_READ)
+			if s.find('net.ipv4.ip_forward=') != -1:
+				return {'status':False, 'msg':'Routing persistent is disabled'}
+
+		return {'status':True,'msg':'Routing persistent is enabled'}
+			
 	#def get_routing_persistent
 
+
 	def disable_network_manager(self):
-		return {'status':False,'msg': 'Removed dependency of upstart-manager from lliurex-disable-upstart-services, need to fix? /usr/share/n4d/python-plugins/NetworkManager.py from n4d-network'}
-		script = ['/usr/sbin/upstart-manager','network-manager']
-		p = subprocess.Popen(script,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-		result = p.communicate()[0]
-		script = ['stop','network-manager']
-		p = subprocess.Popen(script,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-		result = p.communicate()[0]
-		return {'status':True,'msg': 'Network Manager is disabled ^_^'}
+		#
+		# Esta funcion se tiene que eliminar y la llamada a esta
+		#
+		pass
 	#def disable_network_manager
 	
 	def restart_interfaces(self):
-		result = os.system('/etc/init.d/networking restart')
-		
-		for interface in lliurex.net.get_devices_info():
-			os.system("ip addr flush dev %s"%interface["name"])
-			os.system("ifdown %s;ifup %s"%(interface["name"],interface["name"]))
-			
-		if (result == 0):
-			return {'status':True,'msg':'network is restarted ok'}
-		else:
-			return {'status':False,'msg':'network has a problem. Please check file'}
+		os.system('netplan apply')
 	#def restart_interfaces
 	
-	def makedir(self,dir_path=None):
-		
-		if not os.path.isdir(dir_path):
-			os.makedirs(dir_path)
-		
-		return [True]
-		
-	# def makedir
-	
-	
 	def backup(self,dir_path="/backup"):
-		
-		
-		try:
-		
-			self.makedir(dir_path)
-			file_path=dir_path+"/"+get_backup_name("NetworkManager")
-			
-				
-			tar=tarfile.open(file_path,"w:gz")
-			
-			for f in self.backup_files:
-				if os.path.exists(f):
-					tar.add(f)
-					
-			#for
-			
-			tar.close()
-			print "Backup generated in %s" % file_path	
-			return [True,file_path]
-			
-			
-		except Exception as e:
-				print "Backup failed", e
-				return [False,str(e)]
-		
+		pass
 	#def backup
 	
 	def restore(self,file_path=None):
-		
-				
-		
-		#Ordeno de manera alfabetica el directorio y busco el fichero que tiene mi cadena
-		if file_path==None:
-			dir_path="/backup"
-			for f in sorted(os.listdir(dir_path),reverse=True):
-				
-				if "NetworkManager" in f:
-					file_path=dir_path+"/"+f
-					break
-			
-		#Descomprimo el fichero y solo las cadenas que espero encontrar son las que restauro, reiniciando el servicio
-		
-		print "Trabajare con este fichero", file_path
-		try:
-			if os.path.exists(file_path):
-				tmp_dir=tempfile.mkdtemp()
-				tar=tarfile.open(file_path)
-				tar.extractall(tmp_dir)
-				tar.close
-				for f in self.backup_files:
-						tmp_path=tmp_dir+f
-						if os.path.exists(tmp_path):
-							shutil.copy(tmp_path,f)
-							
-				
-						
-				if os.path.exists(self.rules_file):
-					os.remove(self.rules_file)
-					
-			os.system("/etc/init.d/networking restart")
-			print "File is restored in %s" % self.backup_files
-			
-			return [True,""]
-		
-		
-		except Exception as e:
-			
-			print "Restored failed", e
-			return [False,str(e)]
-		
 		pass
-		
 	#def restore
 	
 	
 if __name__ == '__main__':
 	e = NetworkManager()
-	print e.get_interfaces()
+	
