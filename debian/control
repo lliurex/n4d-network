@@ -2,7 +2,7 @@ Source: n4d-network
 Section: admin
 Priority: extra
 Maintainer: Equipo LliureX <lliurex@gva.es>
-Build-Depends: debhelper (>= 8.0.0), n4d-dev, pkexec-debhelper, python3-poinstaller, zero-dev
+Build-Depends: debhelper (>= 8.0.0), n4d-dev, python3-pkexec-debhelper, python3-poinstaller, zero-dev
 Standards-Version: 4.1.2
 Homepage: http://www.lliurex.net
 #Vcs-Svn: http://svn.lliurex.net/pandora/n4d-network/trunk
