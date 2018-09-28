@@ -1,3 +1,9 @@
+n4d-network (1.12.1) bionic; urgency=medium
+
+  * Dummy upgrade
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 28 Sep 2018 14:11:24 +0200
+
 n4d-network (1.12) bionic; urgency=medium
 
   * Migrate project to Bionic
