@@ -17,6 +17,6 @@ set_routing=adm,admins
 get_routing=adm,admins
 get_nat_persistence=anonymous
 get_routing_persistence=anonymous
-restart_interfaces=adm,admins
+apply_changes=adm,admins
 backup=adm,admins
 restore=adm,admins

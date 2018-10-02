@@ -290,7 +290,7 @@ class NetworkManager:
 		pass
 	#def disable_network_manager
 	
-	def restart_interfaces(self):
+	def apply_changes(self):
 		os.system('netplan apply')
 	#def restart_interfaces
 	
