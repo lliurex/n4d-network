@@ -13,8 +13,15 @@ class NetworkManager:
 		self.systemdmanager = dbus.Interface(systemd1,'org.freedesktop.systemd1.Manager')
 		self.network_file = "/etc/netplan/20-lliurex.yaml"
 		self.replication_network_file = "/etc/netplan/30-replication-lliurex.yaml"
-	#def __init__
+		if not os.path.exists(self.network_file):
+			with open(self.network_file,'w') as fd:
+				pass
+		if not os.path.exists(self.replication_network_file):
+			with open(self.replication_network_file,'w') as fd:
+				pass
+		
 
+	#def __init__
 	def startup(self,options):
 		self.internal_interface = objects['VariablesManager'].get_variable('INTERNAL_INTERFACE')
 		self.external_interface = objects['VariablesManager'].get_variable('EXTERNAL_INTERFACE')
@@ -35,13 +42,17 @@ class NetworkManager:
 
 	def load_network_file(self):
 		self.config = self.load_network_config(self.network_file)
-		self.replication_config = self.load_network_config()
+		self.replication_config = self.load_network_config(self.replication_network_file)
 	#def load_network_file
 
-	def load_network_config(self,path_file):
+	def load_network_config(self, path_file):
+		
 		with open(path_file) as fd:
 			config = yaml.load(fd)
 		
+		if config is None:
+			config = {}
+
 		if not 'network' in config:
 			config['network'] = {}
 		
@@ -62,7 +73,6 @@ class NetworkManager:
 			netmask = str(IPNetwork(ip).netmask)
 		except:
 			pass
-		if (ip == None):
 			ip = lliurex.net.get_ip(interface)
 		if(netmask == None):
 			netmask = lliurex.net.get_netmask(interface)
@@ -85,11 +95,9 @@ class NetworkManager:
 		return {'status':True,'msg':'external interface'}
 	#def set_external_interface
 
-	def interface_dhcp(self, interface, otf):
+	def interface_dhcp(self, interface):
 		if interface == self.internal_interface:
 			return {'status':False,'msg':'Interface ' + interface + " is impossible set to dhcp"}
-		if otf:
-			os.system('dhclient ' + interface)
 		
 		self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4'],True)
@@ -101,14 +109,7 @@ class NetworkManager:
 	
 	#def interface_dhcp
 
-	def interface_static(self, interface, ip, netmask, otf, gateway=None, dnssearch=None):
-
-		if otf:
-			cmd = "ip addr add {ip}/{netmask} dev {interface}".format(ip=ip, netmask=netmask, interface=interface)
-			os.system(cmd)
-			if gateway is not None:
-				cmd = "ip route add default via 192.168.50.100"
-				os.system(cmd)
+	def interface_static(self, interface, ip, netmask, gateway=None, dnssearch=None):
 
 		bits_netmask = IPAddress(netmask).netmask_bits()
 		self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
@@ -189,7 +190,7 @@ class NetworkManager:
 			temp_target = temp_target[key]
 		try:
 			del temp_target[key_path[-1]]
-		except (IndexError, KeyError) as e:
+		except (IndexError, KeyError):
 			pass
 	#def secure_delete_key_dictionary
 
@@ -201,7 +202,7 @@ class NetworkManager:
 	#def get_info_eth
 	
 	def set_nat(self, enable=True, persistent=False , eth=None):
-		if enabled:
+		if enable:
 			self.systemdmanager.EnableUnitFiles(['enablenat.service'],not persistent, True)
 			self.systemdmanager.StartUnit('enablenat.service')
 		else:
@@ -230,8 +231,6 @@ class NetworkManager:
 		if persistent:
 			self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv4.ip_forward','net.ipv4.ip_forward=1')
 			self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=1')
-		
-
 	#def set_routing
 	
 	def get_routing(self):
@@ -256,15 +255,32 @@ class NetworkManager:
 	#def get_nat_persistent
 
 	def get_routing_persistence(self):
-
 		with open('/etc/sysctl.d/10-lliurex-forwarding.conf','r') as fd:
 			s = mmap.mmap(fd.fileno(), 0, access=mmap.ACCESS_READ)
 			if s.find('net.ipv4.ip_forward=') != -1:
 				return {'status':False, 'msg':'Routing persistent is disabled'}
 
 		return {'status':True,'msg':'Routing persistent is enabled'}
-			
 	#def get_routing_persistent
+
+	def change_option_sysctl(self, file_path, needle,value):
+		if (os.path.exists(file_path)):
+				f = open(file_path,'r')
+				lines = f.readlines()
+				f.close()
+		else:
+				lines = []
+		found = False
+		f = open(file_path,'w')
+		for x in lines:
+				if(needle in x): 
+						f.write(value+"\n")
+						found = True
+						continue
+				f.write(x)
+		if (not found):
+				f.write(value+"\n")
+		f.close()
 
 
 	def disable_network_manager(self):
