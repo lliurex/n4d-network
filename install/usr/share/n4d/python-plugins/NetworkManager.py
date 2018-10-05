@@ -8,6 +8,8 @@ import mmap
 
 class NetworkManager:
 	def __init__(self):
+		with open('/etc/nat_enabler.conf','w') as fd:
+			fd.write('PATH_INTERNAL_INTERFACES=/usr/share/n4d-network/list_internal_interfaces')
 		self.systembus = dbus.SystemBus()
 		systemd1 = self.systembus.get_object('org.freedesktop.systemd1','/org/freedesktop/systemd1')
 		self.systemdmanager = dbus.Interface(systemd1,'org.freedesktop.systemd1.Manager')
@@ -203,11 +205,11 @@ class NetworkManager:
 	
 	def set_nat(self, enable=True, persistent=False , eth=None):
 		if enable:
-			self.systemdmanager.EnableUnitFiles(['enablenat.service'],not persistent, True)
-			self.systemdmanager.StartUnit('enablenat.service')
+			self.systemdmanager.EnableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent, True)
+			self.systemdmanager.StartUnit('enablenat@{iface}.service'.format(iface=eth))
 		else:
-			self.systemdmanager.DisableUnitFiles(['enablenat.service'],not persistent, True)
-			self.systemdmanager.StopUnit('enablenat.service')
+			self.systemdmanager.DisableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent, True)
+			self.systemdmanager.StopUnit('enablenat@{iface}.service'.format(iface=eth))
 	#def set_nat
 	
 	def get_nat(self):
