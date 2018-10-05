@@ -8,6 +8,8 @@ import mmap
 
 class NetworkManager:
 	def __init__(self):
+		with open('/etc/nat_enabler.conf','w') as fd:
+			fd.write('PATH_INTERNAL_INTERFACES=/usr/share/n4d-network/list_internal_interfaces')
 		self.systembus = dbus.SystemBus()
 		systemd1 = self.systembus.get_object('org.freedesktop.systemd1','/org/freedesktop/systemd1')
 		self.systemdmanager = dbus.Interface(systemd1,'org.freedesktop.systemd1.Manager')
@@ -118,8 +120,8 @@ class NetworkManager:
 			self.secure_insert_dictionary(self.config,['network','ethernets',interface,'gateway4'], gateway )
 		if dnssearch is not None:
 			self.secure_insert_dictionary(self.config,['network','ethernets',interface,'nameservers','search',0], dnssearch)
-
-		self.set_n4d_network_vars(ip, netmask)
+		if self.internal_interface == interface:
+			self.set_n4d_network_vars(ip, netmask)
 		self.safe_config('network')
 		return {'status':True,'msg':'Interface ' + interface + " has been changed to static "}
 	#def interface_static
@@ -203,11 +205,11 @@ class NetworkManager:
 	
 	def set_nat(self, enable=True, persistent=False , eth=None):
 		if enable:
-			self.systemdmanager.EnableUnitFiles(['enablenat.service'],not persistent, True)
-			self.systemdmanager.StartUnit('enablenat.service')
+			self.systemdmanager.EnableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent, True)
+			self.systemdmanager.StartUnit('enablenat@{iface}.service'.format(iface=eth))
 		else:
-			self.systemdmanager.DisableUnitFiles(['enablenat.service'],not persistent, True)
-			self.systemdmanager.StopUnit('enablenat.service')
+			self.systemdmanager.DisableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent, True)
+			self.systemdmanager.StopUnit('enablenat@{iface}.service'.format(iface=eth))
 	#def set_nat
 	
 	def get_nat(self):
@@ -223,21 +225,25 @@ class NetworkManager:
 	#def get_nat
 	
 	def set_routing(self, enable=True, persistent=False):
-		value = 1 if enable else 0
+		value = "1" if enable else "0"
 		with open('/proc/sys/net/ipv4/ip_forward','w') as fd:
 			fd.write(value)
 		with open('/proc/sys/net/ipv6/conf/all/forwarding','w') as fd:
 			fd.write(value)
 		if persistent:
-			self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv4.ip_forward','net.ipv4.ip_forward=1')
-			self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=1')
+			if enable:
+				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv4.ip_forward','net.ipv4.ip_forward=1')
+				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=1')
+			else:
+				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv4.ip_forward','net.ipv4.ip_forward=0')
+				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=0')
 	#def set_routing
 	
 	def get_routing(self):
 		ret = False
 		try:
 			with open('/proc/sys/net/ipv4/ip_forward','r') as fd:
-				ret = fd.readlines()[0].strip() == 0
+				ret = fd.readlines()[0].strip() == "1"
 		except:
 			pass
 		msg_value = "enabled" if ret else "disabled"
@@ -257,7 +263,7 @@ class NetworkManager:
 	def get_routing_persistence(self):
 		with open('/etc/sysctl.d/10-lliurex-forwarding.conf','r') as fd:
 			s = mmap.mmap(fd.fileno(), 0, access=mmap.ACCESS_READ)
-			if s.find('net.ipv4.ip_forward=') != -1:
+			if s.find('net.ipv4.ip_forward=') == -1:
 				return {'status':False, 'msg':'Routing persistent is disabled'}
 
 		return {'status':True,'msg':'Routing persistent is enabled'}
