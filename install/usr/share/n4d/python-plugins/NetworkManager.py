@@ -206,10 +206,10 @@ class NetworkManager:
 	def set_nat(self, enable=True, persistent=False , eth=None):
 		if enable:
 			self.systemdmanager.EnableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent, True)
-			self.systemdmanager.StartUnit('enablenat@{iface}.service'.format(iface=eth))
+			self.systemdmanager.StartUnit('enablenat@{iface}.service'.format(iface=eth),'replace')
 		else:
-			self.systemdmanager.DisableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent, True)
-			self.systemdmanager.StopUnit('enablenat@{iface}.service'.format(iface=eth))
+			self.systemdmanager.DisableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent)
+			self.systemdmanager.StopUnit('enablenat@{iface}.service'.format(iface=eth),'replace')
 	#def set_nat
 	
 	def get_nat(self):
