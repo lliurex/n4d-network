@@ -1,3 +1,9 @@
+n4d-network (1.13.1) bionic; urgency=medium
+
+  * Modify response on is_static
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 23 Oct 2018 13:11:40 +0200
+
 n4d-network (1.13) bionic; urgency=medium
 
   * Add new function for chech interface is static
