@@ -291,10 +291,10 @@ class NetworkManager:
 	def is_static(self, interface):
 		try:
 			if len(self.config['network']['ethernets'][interface]['addresss']) > 0:
-				return True
+				return {'result': True, 'msg': 'Interface {interface} has static configuration'.format(interface=interface)}
 		except:
 			pass
-		return False
+		return return {'result': False, 'msg': 'Interface {interface} has static configuration'.format(interface=interface)}
 
 	def disable_network_manager(self):
 		#
