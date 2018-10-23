@@ -288,6 +288,13 @@ class NetworkManager:
 				f.write(value+"\n")
 		f.close()
 
+	def is_static(self, interface):
+		try:
+			if len(self.config['network']['ethernets'][interface]['addresss']) > 0:
+				return True
+		except:
+			pass
+		return False
 
 	def disable_network_manager(self):
 		#
