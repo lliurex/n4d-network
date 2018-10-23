@@ -18,5 +18,6 @@ get_routing=adm,admins
 get_nat_persistence=anonymous
 get_routing_persistence=anonymous
 apply_changes=adm,admins
+is_static=anonymous
 backup=adm,admins
 restore=adm,admins
