@@ -1,4 +1,4 @@
-n4d-network (1.13) bionic ; urgency=medium
+n4d-network (1.13) bionic; urgency=medium
 
   * Add new function for chech interface is static
 
