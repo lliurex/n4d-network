@@ -294,14 +294,7 @@ class NetworkManager:
 				return {'result': True, 'msg': 'Interface {interface} has static configuration'.format(interface=interface)}
 		except:
 			pass
-		return return {'result': False, 'msg': 'Interface {interface} has static configuration'.format(interface=interface)}
-
-	def disable_network_manager(self):
-		#
-		# Esta funcion se tiene que eliminar y la llamada a esta
-		#
-		pass
-	#def disable_network_manager
+		return {'result': False, 'msg': 'Interface {interface} has static configuration'.format(interface=interface)}
 
 	def systemd_resolved_conf(self):
 
