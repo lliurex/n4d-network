@@ -17,6 +17,7 @@ set_routing=adm,admins
 get_routing=adm,admins
 get_nat_persistence=anonymous
 get_routing_persistence=anonymous
+systemd_resolved_conf=adm,admins
 apply_changes=adm,admins
 is_static=anonymous
 backup=adm,admins

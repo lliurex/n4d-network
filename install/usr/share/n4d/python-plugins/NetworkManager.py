@@ -302,6 +302,22 @@ class NetworkManager:
 		#
 		pass
 	#def disable_network_manager
+
+	def systemd_resolved_conf(self):
+
+		path="/etc/systemd/resolved.conf.d/"
+		f="lliurex-dnsmasq.conf"
+		conf="[Resolve]\nDNS=127.0.0.1\nDNSStubListener=no\n"
+		os.makedirs(path)
+		f=open(path+f,"w")
+		f.write(conf)
+		f.close()
+		os.system("systemctl restart systemd-resolved")
+
+		return [True,""]
+
+	#def systemd_resolved_conf
+
 	
 	def apply_changes(self):
 		os.system('netplan apply')
