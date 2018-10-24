@@ -305,16 +305,17 @@ class NetworkManager:
 
 	def systemd_resolved_conf(self):
 
-		path="/etc/systemd/resolved.conf.d/"
-		f="lliurex-dnsmasq.conf"
+		path = "/etc/systemd/resolved.conf.d/"
+		file_path = "lliurex-dnsmasq.conf"
 		conf="[Resolve]\nDNS=127.0.0.1\nDNSStubListener=no\n"
-		os.makedirs(path)
-		f=open(path+f,"w")
-		f.write(conf)
-		f.close()
-		os.system("systemctl restart systemd-resolved")
+		if not os.path.exists(path):
+			os.makedirs(path)
 
-		return [True,""]
+		with open(path + file_path, "w") as fd:
+			fd.write(conf)
+		self.systemdmanager.ReloadUnit('systemd-resolved','replace')
+
+		return {"status":True,"msg":""}
 
 	#def systemd_resolved_conf
 
