@@ -1,3 +1,9 @@
+n4d-network (1.14.1) bionic; urgency=medium
+
+  * Refactorize code
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 24 Oct 2018 13:52:01 +0200
+
 n4d-network (1.14) bionic; urgency=medium
 
   * Add function to configure systemd-resolved
