@@ -1,3 +1,9 @@
+n4d-network (1.14) bionic; urgency=medium
+
+  * Add function to configure systemd-resolved
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 24 Oct 2018 10:06:16 +0200
+
 n4d-network (1.13.1) bionic; urgency=medium
 
   * Modify response on is_static
