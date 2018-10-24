@@ -5,6 +5,7 @@ from netaddr import IPNetwork, IPAddress
 import os
 import subprocess
 import mmap
+import tar
 
 class NetworkManager:
 	def __init__(self):
@@ -33,18 +34,10 @@ class NetworkManager:
 		return {'status':True,'msg':[x['name'] for x in lliurex.net.get_devices_info()]}
 	#def get_interfaces
 
-	def delete_interfaces_in_range(self,range_ip):
-		#
-		#
-		#  Esta funcion la utiliza el zero-server-wizard para limpiar la interfaz virtual, esto se deberia de arraglar de otra forma
-		#
-		#
-		pass
-	#def delete_interfaces_in_range
-
 	def load_network_file(self):
 		self.config = self.load_network_config(self.network_file)
 		self.replication_config = self.load_network_config(self.replication_network_file)
+		return {'status': True, 'msg':'Network configuration and replication configuration files has been read'}
 	#def load_network_file
 
 	def load_network_config(self, path_file):
@@ -127,12 +120,16 @@ class NetworkManager:
 	#def interface_static
 
 	def set_replication_interface(self, interface, ip=None, netmask=None, enabled=True):
+		msg = ''
 		if not enabled:
 			self.secure_delete_key_dictionary(self.replication_config,['network','ethernets'])
+			msg = 'Replication interfaces has been disabled'
 		elif ip is not None and netmask is not None:
 			bits_netmask = IPAddress(netmask).netmask_bits()
 			self.secure_insert_dictionary(self.replication_config,['network','ethernets',interface,'addresses',0],'{ip}/{mask}'.format(ip=ip, mask=bits_netmask))
+			msg = 'Replication interface now is {interface}'.format(interface)
 		self.safe_config('replication')
+		return {'status':True,'msg':msg}
 	#def set_replication_interface
 
 	def safe_config(self, config_to_save):
@@ -204,12 +201,16 @@ class NetworkManager:
 	#def get_info_eth
 	
 	def set_nat(self, enable=True, persistent=False , eth=None):
+		msg = ''
 		if enable:
 			self.systemdmanager.EnableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent, True)
 			self.systemdmanager.StartUnit('enablenat@{iface}.service'.format(iface=eth),'replace')
+			msg = 'Nat is enabled on {eth}'.format(eth=eth)
 		else:
 			self.systemdmanager.DisableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent)
 			self.systemdmanager.StopUnit('enablenat@{iface}.service'.format(iface=eth),'replace')
+			msg = 'Nat is disabled on {eth}'.format(eth=eth)
+		return {'status': True, 'msg':mgs}
 	#def set_nat
 	
 	def get_nat(self):
@@ -237,6 +238,7 @@ class NetworkManager:
 			else:
 				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv4.ip_forward','net.ipv4.ip_forward=0')
 				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=0')
+		return {'status': True, 'msg':''}
 	#def set_routing
 	
 	def get_routing(self):
@@ -306,8 +308,7 @@ class NetworkManager:
 
 		with open(path + file_path, "w") as fd:
 			fd.write(conf)
-		self.systemdmanager.ReloadUnit('systemd-resolved','replace')
-
+		os.system('systemctl restart systemd-resolved')
 		return {"status":True,"msg":""}
 
 	#def systemd_resolved_conf
@@ -315,10 +316,29 @@ class NetworkManager:
 	
 	def apply_changes(self):
 		os.system('netplan apply')
+		return {"status": True, "msg":""}
 	#def restart_interfaces
 	
 	def backup(self,dir_path="/backup"):
-		pass
+		try:
+		
+			self.makedir(dir_path)
+			file_path=dir_path+"/"+get_backup_name("NetworkManager")
+			
+			tar=tarfile.open(file_path,"w:gz")
+			
+			for f in self.backup_files:
+				if os.path.exists(f):
+					tar.add(f)
+			
+			tar.close()
+			print "Backup generated in %s" % file_path	
+			return [True,file_path]
+			
+			
+		except Exception as e:
+				print "Backup failed", e
+				return [False,str(e)]
 	#def backup
 	
 	def restore(self,file_path=None):
