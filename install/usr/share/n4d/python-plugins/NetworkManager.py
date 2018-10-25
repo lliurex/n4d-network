@@ -134,7 +134,7 @@ class NetworkManager:
 		elif ip is not None and netmask is not None:
 			bits_netmask = IPAddress(netmask).netmask_bits()
 			self.secure_insert_dictionary(self.replication_config,['network','ethernets',interface,'addresses',0],'{ip}/{mask}'.format(ip=ip, mask=bits_netmask))
-			msg = 'Replication interface now is {interface}'.format(interface)
+			msg = 'Replication interface now is {interface}'.format(interface=interface)
 		self.safe_config('replication')
 		return {'status':True,'msg':msg}
 	#def set_replication_interface
