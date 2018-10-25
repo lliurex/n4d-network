@@ -5,7 +5,8 @@ from netaddr import IPNetwork, IPAddress
 import os
 import subprocess
 import mmap
-import tar
+import tarfile
+import tempfile
 
 class NetworkManager:
 	def __init__(self):
@@ -14,17 +15,23 @@ class NetworkManager:
 		self.systembus = dbus.SystemBus()
 		systemd1 = self.systembus.get_object('org.freedesktop.systemd1','/org/freedesktop/systemd1')
 		self.systemdmanager = dbus.Interface(systemd1,'org.freedesktop.systemd1.Manager')
+		
 		self.network_file = "/etc/netplan/20-lliurex.yaml"
 		self.replication_network_file = "/etc/netplan/30-replication-lliurex.yaml"
-		if not os.path.exists(self.network_file):
-			with open(self.network_file,'w') as fd:
-				pass
-		if not os.path.exists(self.replication_network_file):
-			with open(self.replication_network_file,'w') as fd:
-				pass
-		
+		self.routing_path = "/etc/sysctl.d/10-lliurex-forwarding.conf"
 
+		self.backup_files=[ self.network_file, self.replication_network_file, self.routing_path ]
+		
+		self.exists_or_create(self.network_file)
+		self.exists_or_create(self.replication_network_file)
 	#def __init__
+		
+	def exists_or_create(self, file_path):
+		if not os.path.exists(file_path):
+			with open(file_path,'w') as fd:
+				pass
+	#def exists_or_create
+	
 	def startup(self,options):
 		self.internal_interface = objects['VariablesManager'].get_variable('INTERNAL_INTERFACE')
 		self.external_interface = objects['VariablesManager'].get_variable('EXTERNAL_INTERFACE')
@@ -210,7 +217,7 @@ class NetworkManager:
 			self.systemdmanager.DisableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent)
 			self.systemdmanager.StopUnit('enablenat@{iface}.service'.format(iface=eth),'replace')
 			msg = 'Nat is disabled on {eth}'.format(eth=eth)
-		return {'status': True, 'msg':mgs}
+		return {'status': True, 'msg':msg}
 	#def set_nat
 	
 	def get_nat(self):
@@ -233,11 +240,11 @@ class NetworkManager:
 			fd.write(value)
 		if persistent:
 			if enable:
-				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv4.ip_forward','net.ipv4.ip_forward=1')
-				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=1')
+				self.change_option_sysctl(self.routing_path,'net.ipv4.ip_forward','net.ipv4.ip_forward=1')
+				self.change_option_sysctl(self.routing_path,'net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=1')
 			else:
-				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv4.ip_forward','net.ipv4.ip_forward=0')
-				self.change_option_sysctl('/etc/sysctl.d/10-lliurex-forwarding.conf','net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=0')
+				self.change_option_sysctl(self.routing_path,'net.ipv4.ip_forward','net.ipv4.ip_forward=0')
+				self.change_option_sysctl(self.routing_path,'net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=0')
 		return {'status': True, 'msg':''}
 	#def set_routing
 	
@@ -263,7 +270,7 @@ class NetworkManager:
 	#def get_nat_persistent
 
 	def get_routing_persistence(self):
-		with open('/etc/sysctl.d/10-lliurex-forwarding.conf','r') as fd:
+		with open(self.routing_path,'r') as fd:
 			s = mmap.mmap(fd.fileno(), 0, access=mmap.ACCESS_READ)
 			if s.find('net.ipv4.ip_forward=') == -1:
 				return {'status':False, 'msg':'Routing persistent is disabled'}
@@ -324,14 +331,22 @@ class NetworkManager:
 		
 			self.makedir(dir_path)
 			file_path=dir_path+"/"+get_backup_name("NetworkManager")
+			aux_file_path = ''
 			
 			tar=tarfile.open(file_path,"w:gz")
 			
 			for f in self.backup_files:
 				if os.path.exists(f):
 					tar.add(f)
-			
+			if self.get_nat_persistence()['status']:
+				aux_file_path = tempfile.mktemp()
+				with open(aux_file_path,'w') as fd:
+					fd.write(self.external_interface)
+				tar.add(aux_file_path,arcname='nat')
+
 			tar.close()
+			if os.path.exists(aux_file_path):
+				os.remove(aux_file_path)
 			print "Backup generated in %s" % file_path	
 			return [True,file_path]
 			
@@ -342,6 +357,48 @@ class NetworkManager:
 	#def backup
 	
 	def restore(self,file_path=None):
+		#Ordeno de manera alfabetica el directorio y busco el fichero que tiene mi cadena
+		if file_path==None:
+			dir_path="/backup"
+			for f in sorted(os.listdir(dir_path),reverse=True):
+				
+				if "NetworkManager" in f:
+					file_path=dir_path+"/"+f
+					break
+			
+		#Descomprimo el fichero y solo las cadenas que espero encontrar son las que restauro, reiniciando el servicio
+		
+		print "Trabajare con este fichero", file_path
+		try:
+			if os.path.exists(file_path):
+				tmp_dir=tempfile.mkdtemp()
+				tar=tarfile.open(file_path)
+				tar.extractall(tmp_dir)
+				tar.close
+				if os.path.exists(tmp_dir + '/nat'):
+					external_interface = 'eth1'
+					with open(tmp_dir + '/nat') as fd:
+						external_interface = fd.readline().strip()
+					self.set_nat(True,True,external_interface)
+				for f in self.backup_files:
+						tmp_path=tmp_dir+f
+						if os.path.exists(tmp_path):
+							shutil.copy(tmp_path,f)
+
+				if os.path.exists(self.rules_file):
+					os.remove(self.rules_file)
+					
+			self.apply_changes()
+			print "File is restored in %s" % self.backup_files
+			
+			return [True,""]
+		
+		
+		except Exception as e:
+			
+			print "Restored failed", e
+			return [False,str(e)]
+		
 		pass
 	#def restore
 	
