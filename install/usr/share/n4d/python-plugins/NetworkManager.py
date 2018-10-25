@@ -399,7 +399,6 @@ class NetworkManager:
 			print "Restored failed", e
 			return [False,str(e)]
 		
-		pass
 	#def restore
 	
 	
