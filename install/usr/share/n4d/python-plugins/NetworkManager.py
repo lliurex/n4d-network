@@ -24,6 +24,8 @@ class NetworkManager:
 		
 		self.exists_or_create(self.network_file)
 		self.exists_or_create(self.replication_network_file)
+		self.load_network_file()
+		
 	#def __init__
 		
 	def exists_or_create(self, file_path):
@@ -299,11 +301,11 @@ class NetworkManager:
 
 	def is_static(self, interface):
 		try:
-			if len(self.config['network']['ethernets'][interface]['addresss']) > 0:
+			if len(self.config['network']['ethernets'][interface]['addresses']) > 0:
 				return {'result': True, 'msg': 'Interface {interface} has static configuration'.format(interface=interface)}
 		except:
 			pass
-		return {'result': False, 'msg': 'Interface {interface} has static configuration'.format(interface=interface)}
+		return {'result': False, 'msg': 'Interface {interface} has dynamic configuration'.format(interface=interface)}
 
 	def systemd_resolved_conf(self):
 
