@@ -1,3 +1,10 @@
+n4d-network (1.15.2) bionic; urgency=medium
+
+  * Fix typo
+  * Load config on init
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 26 Oct 2018 12:53:41 +0200
+
 n4d-network (1.15.1) bionic; urgency=medium
 
   * Fix replication function
