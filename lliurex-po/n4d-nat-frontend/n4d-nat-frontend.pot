@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-05 13:28+0200\n"
+"POT-Creation-Date: 2018-08-14 08:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,39 +18,84 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat-manager.py:27
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:29
 msgid "You need root privileges to run nat-manager"
 msgstr ""
 
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat-manager.py:68
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:74
 msgid "N4D error: "
 msgstr ""
 
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat-manager.py:135
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:235
 msgid "Changes saved successfuly"
 msgstr ""
 
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat-manager.py:137
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:237
 msgid "Operation failed because: "
 msgstr ""
 
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:7
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:8
 msgid "NAT Manager"
 msgstr ""
 
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:42
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:172
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:55
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:168
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:304
 msgid "Enabled"
 msgstr ""
 
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:60
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:190
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:72
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:185
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:321
 msgid "Disabled"
 msgstr ""
 
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:113
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:121
 msgid "<b>Routing</b>"
 msgstr ""
 
 #: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:244
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:235
 msgid "<b>NAT</b>"
+msgstr ""
+
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:149
+msgid "Routing status"
+msgstr ""
+
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:154
+msgid "Route traffic through server"
+msgstr ""
+
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:169
+msgid "NAT status"
+msgstr ""
+
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:174
+msgid "Redirect server ports to client ports"
+msgstr ""
+
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:190
+msgid "Proxy status"
+msgstr ""
+
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:194
+msgid "Enable proxy in classroom clients"
+msgstr ""
+
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/nat_manager.py:269
+msgid "Actual state is enabled"
+msgstr ""
+
+#: ../n4d-nat-frontend.install/usr/share/n4d-nat-frontend/rsrc/nat-manager.ui:370
+msgid "<b>Clients proxy configuration</b>"
 msgstr ""
