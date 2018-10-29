@@ -55,20 +55,21 @@ class NatManager:
 		
 		try:
 			
-			ret=self.client.get_nat("","NetworkManager")
+			ret = self.client.get_nat("","NetworkManager")
 			
-			self.status["nat"]=ret["status"]
-			ret=self.client.get_routing("","NetworkManager")
-			self.status["routing"]=ret["status"]
-			self.status["nat_persistence"]=True
-			self.status["routing_persistence"]=True
-			proxy_status=self.client.get_variable("","VariablesManager","CLIENT_PROXY_ENABLED")
-			if proxy_status==None:
-				self.proxy_var_initialized=False
-				proxy_status=True
+			self.status["nat"] = ret["status"]
+			ret = self.client.get_routing("","NetworkManager")
+			self.status["routing"] = ret["status"]
+			self.status["nat_persistence"] = True
+			self.status["routing_persistence"] = True
+			proxy_status = self.client.get_variable("","VariablesManager","CLIENT_PROXY_ENABLED")
+			self.external_interface = self.client.get_variable("","VariablesManager","EXTERNAL_INTERFACE")
+			if proxy_status == None:
+				self.proxy_var_initialized = False
+				proxy_status = True
 			else:
-				self.proxy_var_initialized=True
-			self.status["proxy"]=proxy_status
+				self.proxy_var_initialized = True
+			self.status["proxy"] = proxy_status
 			
 		except Exception as e:
 			self.status_error=_("N4D error: ") + str(e)
@@ -201,7 +202,6 @@ class NatManager:
 		Gtk.main()
 		
 	#def build_gui
-
 	
 	def routing_changed(self,*args):
 		widget=args[0]
@@ -212,7 +212,7 @@ class NatManager:
 
 		elif widget==self.swtnat:
 			print("NAT change %s"%state)
-			self.client.set_nat(self.key,"NetworkManager",state,self.status["nat_persistence"])
+			self.client.set_nat(self.key, "NetworkManager", state,self.status["nat_persistence"], self.external_interface)
 		elif widget==self.swtpro:
 			self.set_client_proxy(state)
 
