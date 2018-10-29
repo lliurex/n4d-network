@@ -294,7 +294,7 @@ class NatManager:
 			border:0px;
 			padding:0px;
 			background:white;
-			font:grey;
+			color:grey;
 		}
 
 		#COMPONENT{
@@ -310,14 +310,14 @@ class NatManager:
 
 		#BLUE_FONT {
 			color: #3366cc;
-			font: Roboto Bold 11;
+			font: 11px Roboto Bold;
 			
 		}	
 		
 
 		#TASKGRID_FONT {
 			color: #3366cc;
-			font: Roboto 11;
+			font: 11px Roboto;
 			
 		}
 
@@ -337,7 +337,7 @@ class NatManager:
 
 		#ERROR_FONT {
 			color: #CC0000;
-			font: Roboto Bold 11; 
+			font: 11px Roboto Bold; 
 		}
 
 		#MENUITEM {
