@@ -1,3 +1,9 @@
+n4d-network (1.16) bionic; urgency=medium
+
+  * Sync with xenial version
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 29 Oct 2018 17:56:51 +0100
+
 n4d-network (1.15.2) bionic; urgency=medium
 
   * Fix typo
