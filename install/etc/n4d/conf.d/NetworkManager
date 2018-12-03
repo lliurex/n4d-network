@@ -22,3 +22,4 @@ apply_changes=adm,admins
 is_static=anonymous
 backup=adm,admins
 restore=adm,admins
+check_devices=adm,admins
