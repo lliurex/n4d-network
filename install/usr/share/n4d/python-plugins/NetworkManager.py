@@ -333,7 +333,7 @@ class NetworkManager:
 	def check_devices(self, list_devices_name, timeout = 60):
 		orig_time = time.time()
 		list_devices = NetworkManager.NetworkManager.GetDevices()
-		list_devices = [ x if x.Interface in list_devices_name for x in list_devices ]
+		list_devices = [ x for x in list_devices if x.Interface in list_devices_name ]
 		all_ok = True
 		for x in list_devices:
 			found = True
@@ -349,8 +349,6 @@ class NetworkManager:
 			if not found :
 				all_ok = False
 		return {"status": all_ok, "msg":""}
-
-
 
 	def backup(self,dir_path="/backup"):
 		try:
