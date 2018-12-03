@@ -1,3 +1,9 @@
+n4d-network (1.17.1) bionic; urgency=medium
+
+  * Add function to etc file
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 03 Dec 2018 13:26:33 +0100
+
 n4d-network (1.17) bionic; urgency=medium
 
   * Add function to wait interfaces correctly configured 
