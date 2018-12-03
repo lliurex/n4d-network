@@ -330,24 +330,34 @@ class NetworkManager:
 		return {"status": True, "msg":""}
 	#def restart_interfaces
 	
-	def check_devices(self, list_devices_name, timeout = 60):
+	def check_devices(self, list_devices_name, timeout = 90):
 		orig_time = time.time()
-		list_devices = nm.NetworkManager.GetDevices()
-		list_devices = [ x for x in list_devices if x.Interface in list_devices_name ]
 		all_ok = True
-		for x in list_devices:
-			found = True
-			while True:
-				if x.State == 100:
-					break
+		while True:
+			try:
+				list_devices = nm.NetworkManager.GetDevices()
+				break
+			except:
 				new_time = time.time()
 				diff = new_time - orig_time
 				if diff > timeout:
-					found = False
+					all_ok= False
 					break
-				time.sleep(1)
-			if not found :
-				all_ok = False
+		if all_ok:
+			list_devices = [ x for x in list_devices if x.Interface in list_devices_name ]
+			for x in list_devices:
+				found = True
+				while True:
+					if x.State == 100:
+						break
+					new_time = time.time()
+					diff = new_time - orig_time
+					if diff > timeout:
+						found = False
+						break
+					time.sleep(1)
+				if not found :
+					all_ok = False
 		return {"status": all_ok, "msg":""}
 
 	def backup(self,dir_path="/backup"):
