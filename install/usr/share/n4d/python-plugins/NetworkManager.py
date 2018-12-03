@@ -7,6 +7,8 @@ import subprocess
 import mmap
 import tarfile
 import tempfile
+import NetworkManager
+import time
 
 class NetworkManager:
 	def __init__(self):
@@ -328,6 +330,28 @@ class NetworkManager:
 		return {"status": True, "msg":""}
 	#def restart_interfaces
 	
+	def check_devices(self, list_devices_name, timeout = 60):
+		orig_time = time.time()
+		list_devices = NetworkManager.NetworkManager.GetDevices()
+		list_devices = [ x if x.Interface in list_devices_name for x in list_devices ]
+		all_ok = True
+		for x in list_devices:
+			found = True
+			while True:
+				if x.State == 100:
+					break
+				new_time = time.time()
+				diff = new_time - orig_time
+				if diff > timeout:
+					found = False
+					break
+				time.sleep(1)
+			if not found :
+				all_ok = False
+		return {"status": all_ok, "msg":""}
+
+
+
 	def backup(self,dir_path="/backup"):
 		try:
 		
