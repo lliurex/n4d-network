@@ -7,7 +7,7 @@ import subprocess
 import mmap
 import tarfile
 import tempfile
-import NetworkManager
+import NetworkManager as nm
 import time
 
 class NetworkManager:
@@ -332,7 +332,7 @@ class NetworkManager:
 	
 	def check_devices(self, list_devices_name, timeout = 60):
 		orig_time = time.time()
-		list_devices = NetworkManager.NetworkManager.GetDevices()
+		list_devices = nm.NetworkManager.GetDevices()
 		list_devices = [ x for x in list_devices if x.Interface in list_devices_name ]
 		all_ok = True
 		for x in list_devices:
