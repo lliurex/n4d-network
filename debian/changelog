@@ -1,3 +1,9 @@
+n4d-network (1.17.5) bionic; urgency=medium
+
+  * Adding sudo group
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 14 Feb 2019 12:26:14 +0100
+
 n4d-network (1.17.4) bionic; urgency=medium
 
   * Fix problem with dbus exception
