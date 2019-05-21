@@ -61,7 +61,6 @@ class NetworkManager:
 
 		if not 'network' in config:
 			config['network'] = {}
-			config['network']['renderer'] = 'NetworkManager'
 		
 		if not 'version' in config['network']:
 			config['network']['version'] = 2
@@ -378,7 +377,7 @@ class NetworkManager:
 					if diff > timeout:
 						all_ok= False
 						break
-					time.sleep(0.1)
+					time.sleep(1)
 			except Exception as e:
 				all_ok= False
 		if all_ok:
