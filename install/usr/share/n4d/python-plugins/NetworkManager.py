@@ -61,11 +61,12 @@ class NetworkManager:
 
 		if not 'network' in config:
 			config['network'] = {}
+			config['network']['renderer'] = 'NetworkManager'
 		
 		if not 'version' in config['network']:
 			config['network']['version'] = 2
-		if not 'renderer' in config['network']:
-			config['network']['renderer'] = 'NetworkManager'
+#		if not 'renderer' in config['network']:
+#			config['network']['renderer'] = 'NetworkManager'
 		return config
 	
 	def set_internal_interface(self, interface):
@@ -108,6 +109,7 @@ class NetworkManager:
 		self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4'],True)
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6'],True)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'renderer'],'networkd')
 
 		# Falta que se escriba el fichero
 		self.safe_config('network')
@@ -120,6 +122,7 @@ class NetworkManager:
 		bits_netmask = IPAddress(netmask).netmask_bits()
 		self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'addresses',0], '{ip}/{mask}'.format(ip=ip,mask=bits_netmask))
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'renderer'], 'networkd')
 		if gateway is not None:
 			self.secure_insert_dictionary(self.config,['network','ethernets',interface,'gateway4'], gateway )
 		if dnssearch is not None:
@@ -331,20 +334,54 @@ class NetworkManager:
 	#def restart_interfaces
 	
 	def check_devices(self, list_devices_name, timeout = 90):
+		class device():
+			State=0
+			Interface=''
+
 		orig_time = time.time()
 		all_ok = True
-		while True:
-			try:
-				list_devices = nm.NetworkManager.GetDevices()
-				break
-			except:
-				new_time = time.time()
-				diff = new_time - orig_time
-				if diff > timeout:
-					all_ok= False
-					break
+		list_devices=[]
+		try:
+			devices_str=subprocess.check_output("networkctl")
+			devices_arr=devices_str.split('\n')
+			for devices_line in devices_arr:
+				list_devices_arr=devices_line.split()
+				netdevice=device()
+				if list_devices_arr:
+					netdevice.Interface=list_devices_arr[1]
+					if netdevice.Interface in list_devices_name:
+						list_devices.append(netdevice)
+		except Exception as e:
+			all_ok=False
+		#Device list is loaded, proceed with checks
+
 		if all_ok:
-			list_devices = [ x for x in list_devices if x.Interface in list_devices_name ]
+			try:
+				while True:
+					devices_str=subprocess.check_output("networkctl")
+					devices_arr=devices_str.split('\n')
+					all_ok=True
+					for netdevice in list_devices:
+						for devices_line in devices_arr:
+							if netdevice.Interface in devices_line:
+								if 'routable' in devices_line:
+									netdevice.State=100
+								else:
+									all_ok=False
+									break
+						time.sleep(0.1)
+
+					if all_ok:
+						break
+					new_time = time.time()
+					diff = new_time - orig_time
+					if diff > timeout:
+						all_ok= False
+						break
+					time.sleep(0.1)
+			except Exception as e:
+				all_ok= False
+		if all_ok:
 			for x in list_devices:
 				found = True
 				while True:
