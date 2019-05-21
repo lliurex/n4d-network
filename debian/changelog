@@ -1,3 +1,9 @@
+n4d-network (1.18) bionic; urgency=medium
+
+  * networkd as renderer for our interfaces
+
+ -- Juanma Navarro Mañez <juanma1980@gmail.com>  Tue, 21 May 2019 11:58:50 +0200
+
 n4d-network (1.17.6) bionic; urgency=medium
 
   * Adding sudo group to zomando
