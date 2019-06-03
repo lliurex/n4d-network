@@ -1,3 +1,9 @@
+n4d-network (1.19) bionic; urgency=medium
+
+  * Implmented migration NM->NP when restoring backup from xenial
+
+ -- Juanma Navarro Mañez <juanma1980@gmail.com>  Mon, 03 Jun 2019 09:15:52 +0200
+
 n4d-network (1.18) bionic; urgency=medium
 
   * networkd as renderer for our interfaces
