@@ -17,12 +17,12 @@ class NetworkManager:
 		self.systembus = dbus.SystemBus()
 		systemd1 = self.systembus.get_object('org.freedesktop.systemd1','/org/freedesktop/systemd1')
 		self.systemdmanager = dbus.Interface(systemd1,'org.freedesktop.systemd1.Manager')
-		
+		self.rules_file="/etc/udev/rules.d/70-persistent-net.rules"
 		self.network_file = "/etc/netplan/20-lliurex.yaml"
 		self.replication_network_file = "/etc/netplan/30-replication-lliurex.yaml"
 		self.routing_path = "/etc/sysctl.d/10-lliurex-forwarding.conf"
-
-		self.backup_files=[ self.network_file, self.replication_network_file, self.routing_path ]
+		self.interfaces="/etc/network/interfaces"
+		self.backup_files=[ self.network_file, self.replication_network_file, self.routing_path, self.interfaces ]
 		
 		self.exists_or_create(self.network_file)
 		self.exists_or_create(self.replication_network_file)
@@ -441,6 +441,7 @@ class NetworkManager:
 		print "Trabajare con este fichero", file_path
 		try:
 			if os.path.exists(file_path):
+				sw_migrate=False
 				tmp_dir=tempfile.mkdtemp()
 				tar=tarfile.open(file_path)
 				tar.extractall(tmp_dir)
@@ -451,13 +452,17 @@ class NetworkManager:
 						external_interface = fd.readline().strip()
 					self.set_nat(True,True,external_interface)
 				for f in self.backup_files:
-						tmp_path=tmp_dir+f
-						if os.path.exists(tmp_path):
-							shutil.copy(tmp_path,f)
-
+					print("Restoring %s"%f)
+					tmp_path=tmp_dir+f
+					if os.path.exists(tmp_path):
+						shutil.copy(tmp_path,f)
+					if f.endswith("interfaces"):
+						sw_migrate=True
 				if os.path.exists(self.rules_file):
 					os.remove(self.rules_file)
-					
+				if sw_migrate:
+					self.migrate_to_netplan()
+				
 			self.apply_changes()
 			print "File is restored in %s" % self.backup_files
 			
@@ -470,7 +475,47 @@ class NetworkManager:
 			return [False,str(e)]
 		
 	#def restore
-	
+
+	def migrate_to_netplan(self):
+		#migrate from nm to np
+		print("Migrate to netplan")
+		nm_file="/etc/network/interfaces"
+		np_tmpfile="/etc/netplan/10-ifupdown.yaml"
+		for f in [np_tmpfile,self.network_file,self.replication_network_file]:
+			if os.path.exists(f):
+				print("Removing %s"%f)
+				os.remove(f)
+		replication={}
+		if os.path.exists(nm_file):
+			print("Calling netplan migrate")
+			subprocess.call("ENABLE_TEST_COMMANDS=1 netplan migrate",shell=True)
+			if os.path.exists(np_tmpfile):
+				with open(np_tmpfile,'r') as f:
+					try:
+						f_contents=yaml.safe_load(f)
+					except Exception as e:
+						print("%s"%e)
+				interfaces=f_contents.copy()
+				print("C: %s"%interfaces)
+				for interface in f_contents['network']['ethernets'].keys():
+					interfaces['network']['ethernets'][interface].update({'renderer':'networkd'})
+					if ':' in interface:
+						#replication interface
+						if not 'network' in replication.keys():
+							replication['network']={}
+						repiface=interface.split(":")[0]
+						replication['network']['ethernets'].update({repiface:interfaces['network']['ethernets'][interface].copy()})
+						interfaces['network']['ethernets'].delete(interface)
+				if 'network' in interfaces.keys():
+					with open(self.network_file,'w') as f:
+						yaml.dump(interfaces,f,default_flow_style=False)
+				if not 'network' in replication.keys():
+					replication.update({'network':{'renderer':'NetworkManager','version':2}})
+				with open(self.replication_network_file,'w') as f:
+					yaml.dump(replication,f,default_flow_style=False)
+		if os.path.exists(np_tmpfile):
+			os.remove(np_tmpfile)
+		print("Migrated")
 	
 if __name__ == '__main__':
 	e = NetworkManager()
