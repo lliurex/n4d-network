@@ -396,6 +396,15 @@ class NetworkManager:
 					all_ok = False
 		return {"status": all_ok, "msg":""}
 
+	def makedir(self,dir_path=None):
+		
+		if not os.path.isdir(dir_path):
+			os.makedirs(dir_path)
+		
+		return [True]
+		
+	# def makedir
+
 	def backup(self,dir_path="/backup"):
 		try:
 		
