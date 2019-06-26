@@ -267,8 +267,12 @@ class NetworkManager:
 
 	def get_nat_persistence(self):
 		if self.external_interface != None:
-			status = str(self.systemdmanager.GetUnitFileState('enablenat.service'))
-			result = status == 'enabled'
+			try:
+				status = str(self.systemdmanager.GetUnitFileState('enablenat.service'))
+				result = status == 'enabled'
+			except:
+				result=False
+				status='disabled'	
 		else:
 			result = False
 			status = 'disabled'
