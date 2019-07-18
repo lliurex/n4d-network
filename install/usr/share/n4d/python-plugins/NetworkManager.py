@@ -333,6 +333,8 @@ class NetworkManager:
 	
 	def apply_changes(self):
 		os.system('netplan apply')
+		if os.path.exists("/etc/systemd/resolved.conf.d/lliurex-dnsmasq.conf"):
+			os.system('systemctl restart systemd-resolved')
 		return {"status": True, "msg":""}
 	#def restart_interfaces
 	
