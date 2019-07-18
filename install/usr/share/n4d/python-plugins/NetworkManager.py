@@ -333,6 +333,8 @@ class NetworkManager:
 	
 	def apply_changes(self):
 		os.system('netplan apply')
+		if os.path.exists("/etc/systemd/resolved.conf.d/lliurex-dnsmasq.conf"):
+			os.system('systemctl restart systemd-resolved')
 		return {"status": True, "msg":""}
 	#def restart_interfaces
 	
@@ -494,15 +496,15 @@ class NetworkManager:
 		print("Migrate to netplan")
 		nm_file="/etc/network/interfaces"
 		np_tmpfile="/etc/netplan/10-ifupdown.yaml"
-		for f in [np_tmpfile,self.network_file,self.replication_network_file]:
-			if os.path.exists(f):
-				print("Removing %s"%f)
-				os.remove(f)
 		replication={}
 		if os.path.exists(nm_file):
 			print("Calling netplan migrate")
 			subprocess.call("ENABLE_TEST_COMMANDS=1 netplan migrate",shell=True)
 			if os.path.exists(np_tmpfile):
+				for f in [np_tmpfile,self.network_file,self.replication_network_file]:
+					if os.path.exists(f):
+						print("Removing %s"%f)
+						os.remove(f)
 				with open(np_tmpfile,'r') as f:
 					try:
 						f_contents=yaml.safe_load(f)
