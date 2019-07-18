@@ -1,3 +1,9 @@
+n4d-network (1.22) bionic; urgency=medium
+
+  * Added systemd-resovled restart after netplan-apply
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Thu, 18 Jul 2019 09:21:48 +0200
+
 n4d-network (1.21) bionic; urgency=medium
 
   * Fixed get_nat_persistence function
