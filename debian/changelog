@@ -1,3 +1,9 @@
+n4d-network (1.24) bionic; urgency=medium
+
+  * adding ca@valencia
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Fri, 26 Jul 2019 11:35:26 +0200
+
 n4d-network (1.23) bionic; urgency=medium
 
   * Added systemd-resovled restart after netplan-apply
