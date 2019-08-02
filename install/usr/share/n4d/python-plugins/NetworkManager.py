@@ -17,12 +17,12 @@ class NetworkManager:
 		self.systembus = dbus.SystemBus()
 		systemd1 = self.systembus.get_object('org.freedesktop.systemd1','/org/freedesktop/systemd1')
 		self.systemdmanager = dbus.Interface(systemd1,'org.freedesktop.systemd1.Manager')
-		
+		self.rules_file="/etc/udev/rules.d/70-persistent-net.rules"
 		self.network_file = "/etc/netplan/20-lliurex.yaml"
 		self.replication_network_file = "/etc/netplan/30-replication-lliurex.yaml"
 		self.routing_path = "/etc/sysctl.d/10-lliurex-forwarding.conf"
-
-		self.backup_files=[ self.network_file, self.replication_network_file, self.routing_path ]
+		self.interfaces="/etc/network/interfaces"
+		self.backup_files=[ self.network_file, self.replication_network_file, self.routing_path, self.interfaces ]
 		
 		self.exists_or_create(self.network_file)
 		self.exists_or_create(self.replication_network_file)
@@ -64,8 +64,8 @@ class NetworkManager:
 		
 		if not 'version' in config['network']:
 			config['network']['version'] = 2
-		if not 'renderer' in config['network']:
-			config['network']['renderer'] = 'NetworkManager'
+#		if not 'renderer' in config['network']:
+#			config['network']['renderer'] = 'NetworkManager'
 		return config
 	
 	def set_internal_interface(self, interface):
@@ -107,7 +107,12 @@ class NetworkManager:
 		
 		self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4'],True)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4-overrides','use-dns'],False)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4-overrides','use-domains'],False)
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6'],True)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6-overrides','use-dns'],False)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6-overrides','use-domains'],False)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'renderer'],'networkd')
 
 		# Falta que se escriba el fichero
 		self.safe_config('network')
@@ -120,6 +125,7 @@ class NetworkManager:
 		bits_netmask = IPAddress(netmask).netmask_bits()
 		self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'addresses',0], '{ip}/{mask}'.format(ip=ip,mask=bits_netmask))
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'renderer'], 'networkd')
 		if gateway is not None:
 			self.secure_insert_dictionary(self.config,['network','ethernets',interface,'gateway4'], gateway )
 		if dnssearch is not None:
@@ -265,8 +271,12 @@ class NetworkManager:
 
 	def get_nat_persistence(self):
 		if self.external_interface != None:
-			status = str(self.systemdmanager.GetUnitFileState('enablenat.service'))
-			result = status == 'enabled'
+			try:
+				status = str(self.systemdmanager.GetUnitFileState('enablenat.service'))
+				result = status == 'enabled'
+			except:
+				result=False
+				status='disabled'	
 		else:
 			result = False
 			status = 'disabled'
@@ -327,24 +337,60 @@ class NetworkManager:
 	
 	def apply_changes(self):
 		os.system('netplan apply')
+		if os.path.exists("/etc/systemd/resolved.conf.d/lliurex-dnsmasq.conf"):
+			os.system('systemctl restart systemd-resolved')
 		return {"status": True, "msg":""}
 	#def restart_interfaces
 	
 	def check_devices(self, list_devices_name, timeout = 90):
+		class device():
+			State=0
+			Interface=''
+
 		orig_time = time.time()
 		all_ok = True
-		while True:
-			try:
-				list_devices = nm.NetworkManager.GetDevices()
-				break
-			except:
-				new_time = time.time()
-				diff = new_time - orig_time
-				if diff > timeout:
-					all_ok= False
-					break
+		list_devices=[]
+		try:
+			devices_str=subprocess.check_output("networkctl")
+			devices_arr=devices_str.split('\n')
+			for devices_line in devices_arr:
+				list_devices_arr=devices_line.split()
+				netdevice=device()
+				if list_devices_arr:
+					netdevice.Interface=list_devices_arr[1]
+					if netdevice.Interface in list_devices_name:
+						list_devices.append(netdevice)
+		except Exception as e:
+			all_ok=False
+		#Device list is loaded, proceed with checks
+
 		if all_ok:
-			list_devices = [ x for x in list_devices if x.Interface in list_devices_name ]
+			try:
+				while True:
+					devices_str=subprocess.check_output("networkctl")
+					devices_arr=devices_str.split('\n')
+					all_ok=True
+					for netdevice in list_devices:
+						for devices_line in devices_arr:
+							if netdevice.Interface in devices_line:
+								if 'routable' in devices_line:
+									netdevice.State=100
+								else:
+									all_ok=False
+									break
+						time.sleep(0.1)
+
+					if all_ok:
+						break
+					new_time = time.time()
+					diff = new_time - orig_time
+					if diff > timeout:
+						all_ok= False
+						break
+					time.sleep(1)
+			except Exception as e:
+				all_ok= False
+		if all_ok:
 			for x in list_devices:
 				found = True
 				while True:
@@ -359,6 +405,15 @@ class NetworkManager:
 				if not found :
 					all_ok = False
 		return {"status": all_ok, "msg":""}
+
+	def makedir(self,dir_path=None):
+		
+		if not os.path.isdir(dir_path):
+			os.makedirs(dir_path)
+		
+		return [True]
+		
+	# def makedir
 
 	def backup(self,dir_path="/backup"):
 		try:
@@ -405,6 +460,7 @@ class NetworkManager:
 		print "Trabajare con este fichero", file_path
 		try:
 			if os.path.exists(file_path):
+				sw_migrate=False
 				tmp_dir=tempfile.mkdtemp()
 				tar=tarfile.open(file_path)
 				tar.extractall(tmp_dir)
@@ -415,13 +471,17 @@ class NetworkManager:
 						external_interface = fd.readline().strip()
 					self.set_nat(True,True,external_interface)
 				for f in self.backup_files:
-						tmp_path=tmp_dir+f
-						if os.path.exists(tmp_path):
-							shutil.copy(tmp_path,f)
-
+					print("Restoring %s"%f)
+					tmp_path=tmp_dir+f
+					if os.path.exists(tmp_path):
+						shutil.copy(tmp_path,f)
+					if f.endswith("interfaces"):
+						sw_migrate=True
 				if os.path.exists(self.rules_file):
 					os.remove(self.rules_file)
-					
+				if sw_migrate:
+					self.migrate_to_netplan()
+				
 			self.apply_changes()
 			print "File is restored in %s" % self.backup_files
 			
@@ -434,7 +494,47 @@ class NetworkManager:
 			return [False,str(e)]
 		
 	#def restore
-	
+
+	def migrate_to_netplan(self):
+		#migrate from nm to np
+		print("Migrate to netplan")
+		nm_file="/etc/network/interfaces"
+		np_tmpfile="/etc/netplan/10-ifupdown.yaml"
+		replication={}
+		if os.path.exists(nm_file):
+			print("Calling netplan migrate")
+			subprocess.call("ENABLE_TEST_COMMANDS=1 netplan migrate",shell=True)
+			if os.path.exists(np_tmpfile):
+				for f in [np_tmpfile,self.network_file,self.replication_network_file]:
+					if os.path.exists(f):
+						print("Removing %s"%f)
+						os.remove(f)
+				with open(np_tmpfile,'r') as f:
+					try:
+						f_contents=yaml.safe_load(f)
+					except Exception as e:
+						print("%s"%e)
+				interfaces=f_contents.copy()
+				print("C: %s"%interfaces)
+				for interface in f_contents['network']['ethernets'].keys():
+					interfaces['network']['ethernets'][interface].update({'renderer':'networkd'})
+					if ':' in interface:
+						#replication interface
+						if not 'network' in replication.keys():
+							replication['network']={}
+						repiface=interface.split(":")[0]
+						replication['network']['ethernets'].update({repiface:interfaces['network']['ethernets'][interface].copy()})
+						interfaces['network']['ethernets'].delete(interface)
+				if 'network' in interfaces.keys():
+					with open(self.network_file,'w') as f:
+						yaml.dump(interfaces,f,default_flow_style=False)
+				if not 'network' in replication.keys():
+					replication.update({'network':{'renderer':'NetworkManager','version':2}})
+				with open(self.replication_network_file,'w') as f:
+					yaml.dump(replication,f,default_flow_style=False)
+		if os.path.exists(np_tmpfile):
+			os.remove(np_tmpfile)
+		print("Migrated")
 	
 if __name__ == '__main__':
 	e = NetworkManager()
