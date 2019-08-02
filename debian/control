@@ -16,6 +16,6 @@ Description: GUI to configure NAT and Routing
 
 Package: n4d-network
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet (>=0.20), python2.7, n4d-lliurex-base (>=0.7), python-networkmanager
+Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet (>=0.20), python2.7, n4d-lliurex-base (>=0.7), python-networkmanager, python-yaml
 Description: N4D plugin to configure network interface
  Utility by configure interface, mask, etc
