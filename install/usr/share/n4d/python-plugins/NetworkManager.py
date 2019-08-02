@@ -107,7 +107,11 @@ class NetworkManager:
 		
 		self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4'],True)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4-overrides','use-dns'],False)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4-overrides','use-domains'],False)
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6'],True)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6-overrides','use-dns'],False)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6-overrides','use-domains'],False)
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'renderer'],'networkd')
 
 		# Falta que se escriba el fichero
