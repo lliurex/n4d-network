@@ -1,3 +1,9 @@
+n4d-network (1.25) bionic; urgency=medium
+
+  * Add use-domains false to fix problem with lliurex-guard.
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 30 Aug 2019 14:14:50 +0200
+
 n4d-network (1.24) bionic; urgency=medium
 
   * adding ca@valencia
