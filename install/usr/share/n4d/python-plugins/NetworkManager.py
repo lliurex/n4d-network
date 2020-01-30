@@ -229,7 +229,15 @@ class NetworkManager:
 			msg = 'Nat is disabled on {eth}'.format(eth=eth)
 		return {'status': True, 'msg':msg}
 	#def set_nat
-	
+
+	def clean_nat_services(self):
+		listservices = self.systemdmanager.ListUnitsByPatterns([],['enablenat*'])
+		for service in listservices:
+			self.systemdmanager.DisableUnitFiles([service[0].lower()],not persistent)
+			self.systemdmanager.StopUnit(service[0].lower(),'replace')
+		return {'status': True, 'msg':'All nat services has been disabled'}
+	#def clean_nat_services
+
 	def get_nat(self):
 		if self.external_interface == None:
 			return {'status':False,'msg':'External interface is not defined'}
