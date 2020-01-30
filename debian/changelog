@@ -1,3 +1,9 @@
+n4d-network (1.26) bionic; urgency=medium
+
+  * Add new method to clean nat interfaces
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Thu, 30 Jan 2020 11:01:02 +0100
+
 n4d-network (1.25) bionic; urgency=medium
 
   * Add use-domains false to fix problem with lliurex-guard.
