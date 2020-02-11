@@ -1,3 +1,9 @@
+n4d-network (1.27) bionic; urgency=medium
+
+  * Add new method to enable nat for replication interface
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 11 Feb 2020 13:18:09 +0100
+
 n4d-network (1.26) bionic; urgency=medium
 
   * Add new method to clean nat interfaces
