@@ -247,7 +247,7 @@ class NetworkManager:
 	def clean_nat_services(self):
 		listservices = self.systemdmanager.ListUnitsByPatterns([],['enablenat*'])
 		for service in listservices:
-			self.systemdmanager.DisableUnitFiles([service[0].lower()],True)
+			self.systemdmanager.DisableUnitFiles([service[0].lower()],False)
 			self.systemdmanager.StopUnit(service[0].lower(),'replace')
 		return {'status': True, 'msg':'All nat services has been disabled'}
 	#def clean_nat_services
