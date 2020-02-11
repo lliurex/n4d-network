@@ -39,6 +39,7 @@ class NetworkManager:
 	def startup(self,options):
 		self.internal_interface = objects['VariablesManager'].get_variable('INTERNAL_INTERFACE')
 		self.external_interface = objects['VariablesManager'].get_variable('EXTERNAL_INTERFACE')
+		self.replication_interface = objects['VariablesManager'].get_variable('INTERFACE_REPLICATION')
 	#def startup
 	
 	def get_interfaces(self):
@@ -230,6 +231,19 @@ class NetworkManager:
 		return {'status': True, 'msg':msg}
 	#def set_nat
 
+	def set_nat_replication(self, enable=True, persistent=False, eth=None):
+		msg = ''
+		if enable:
+			self.systemdmanager.EnableUnitFiles(['enablenatreplication@{iface}.service'.format(iface=eth)],not persistent, True)
+			self.systemdmanager.StartUnit('enablenatreplication@{iface}.service'.format(iface=eth),'replace')
+			msg = 'Nat replication is enabled on {eth}'.format(eth=eth)
+		else:
+			self.systemdmanager.DisableUnitFiles(['enablenatreplication@{iface}.service'.format(iface=eth)],not persistent)
+			self.systemdmanager.StopUnit('enablenatreplication@{iface}.service'.format(iface=eth),'replace')
+			msg = 'Nat replication is disabled on {eth}'.format(eth=eth)
+		return {'status': True, 'msg':msg}
+
+
 	def clean_nat_services(self):
 		listservices = self.systemdmanager.ListUnitsByPatterns([],['enablenat*'])
 		for service in listservices:
@@ -249,7 +263,19 @@ class NetworkManager:
 		else:
 			return {'status':False,'msg':'Nat is not activated'}
 	#def get_nat
-	
+
+	def get_nat_replication(self):
+		if self.replication_interface == None:
+		    return {'status':False,'msg':'External interface is not defined'}
+		p = subprocess.Popen(['iptables-save','-t','nat'],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+		output = p.communicate()[0].split('\n')
+		needle = "-A POSTROUTING -o "+self.replication_interface
+		if (needle in output):
+			if ( '-j SNAT' in output):
+			return {'status':True,'msg':'Nat is activated'}
+		return {'status':False,'msg':'Nat is not activated'}
+	#def get_nat_replication
+
 	def set_routing(self, enable=True, persistent=False):
 		value = "1" if enable else "0"
 		with open('/proc/sys/net/ipv4/ip_forward','w') as fd:
