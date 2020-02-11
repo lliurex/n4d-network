@@ -270,9 +270,8 @@ class NetworkManager:
 		p = subprocess.Popen(['iptables-save','-t','nat'],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
 		output = p.communicate()[0].split('\n')
 		needle = "-A POSTROUTING -o "+self.replication_interface
-		if (needle in output):
-			if ( '-j SNAT' in output):
-			return {'status':True,'msg':'Nat is activated'}
+		if needle in output and '-j SNAT' in output:
+				return {'status':True,'msg':'Nat is activated'}
 		return {'status':False,'msg':'Nat is not activated'}
 	#def get_nat_replication
 
