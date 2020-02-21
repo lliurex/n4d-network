@@ -1,3 +1,9 @@
+n4d-network (1.28) bionic; urgency=medium
+
+  * Add function to get replication network
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 21 Feb 2020 14:51:33 +0100
+
 n4d-network (1.27) bionic; urgency=medium
 
   * Add new method to enable nat for replication interface
