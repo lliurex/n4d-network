@@ -26,3 +26,4 @@ backup=sudo,admins
 restore=sudo,admins
 check_devices=sudo,admins
 clean_nat_services=sudo,admins
+get_replication_network=anonymous

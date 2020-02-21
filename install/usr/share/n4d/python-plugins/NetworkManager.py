@@ -162,6 +162,11 @@ class NetworkManager:
 			yaml.dump(config, stream)
 	#def safe_config
 
+	def get_replication_network(self):
+		try:
+			return {'status': True, 'msg': self.replication_config['network']['ethernets'][self.replication_interface]['addresses'][0]}
+		except:
+			return {'status': False, 'msg': None}
 
 	def secure_insert_dictionary(self, target, key_path, value):
 		temp_target = target
