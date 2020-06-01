@@ -102,6 +102,14 @@ class NetworkManager:
 		return {'status':True,'msg':'external interface'}
 	#def set_external_interface
 
+	def set_replicate_interface(self, interface ):
+		objects['VariablesManager'].init_variable("INTERFACE_REPLICATION",{"INTERFACE_REPLICATION":interface})
+		selt.replication_interface = interface
+		return {"status":True,"msg":"Interface " + str(interface) + " is replication interface now"}
+	#def set_replicate_interface
+
+
+
 	def interface_dhcp(self, interface):
 		if interface == self.internal_interface:
 			return {'status':False,'msg':'Interface ' + interface + " is impossible set to dhcp"}
