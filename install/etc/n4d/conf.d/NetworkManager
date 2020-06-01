@@ -7,6 +7,7 @@ get_interfaces=anonymous
 load_network_file=sudo,admins
 set_internal_interface=sudo,admins
 set_external_interface=sudo,admins
+set_replicate_interface=sudo,admins
 interface_dhcp=sudo,admins
 interface_static=sudo,admins
 set_replication_interface=sudo,admins
