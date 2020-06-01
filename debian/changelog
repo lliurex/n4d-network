@@ -1,3 +1,9 @@
+n4d-network (1.29) bionic; urgency=medium
+
+  * Moved set_replica_interface from n4d-ldap
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 01 Jun 2020 15:16:18 +0200
+
 n4d-network (1.28) bionic; urgency=medium
 
   * Add function to get replication network
