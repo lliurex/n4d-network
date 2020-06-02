@@ -113,6 +113,7 @@ class NetworkManager:
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6'],True)
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6-overrides','use-dns'],False)
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp6-overrides','use-domains'],False)
+		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp-identifier'],"mac")
 		self.secure_insert_dictionary(self.config,['network','ethernets',interface,'renderer'],'networkd')
 
 		# Falta que se escriba el fichero
