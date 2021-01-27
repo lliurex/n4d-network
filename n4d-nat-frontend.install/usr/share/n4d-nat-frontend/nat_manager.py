@@ -3,7 +3,7 @@ gi.require_version('Gtk','3.0')
 
 from gi.repository import Gtk, Gdk,GdkPixbuf,GObject,GLib
 
-import xmlrpclib
+import n4d.client
 import sys
 import os
 import os.path
@@ -34,7 +34,8 @@ class NatManager:
 			response = dialog.run()
 			dialog.destroy()
 			sys.exit(0)
-		self.client=xmlrpclib.ServerProxy("https://"+ip+":9779")
+#		self.client=xmlrpclib.ServerProxy("https://"+ip+":9779")
+		self.n4dclient=n4d.client.Client("https://%s:9779"%ip)
 		self.status={}
 		self.get_status_list()
 		self.build_gui()
@@ -53,17 +54,24 @@ class NatManager:
 	
 	def get_status_list(self):
 		
-		try:
+	#		try:
 			
-			ret = self.client.get_nat("","NetworkManager")
-			
-			self.status["nat"] = ret["status"]
-			ret = self.client.get_routing("","NetworkManager")
-			self.status["routing"] = ret["status"]
+			ret = self.n4dclient.get_nat("","NetworkManager")
+			self.status["nat"] = ret
+			ret = self.n4dclient.get_routing("","NetworkManager")
+			self.status["routing"] = ret
 			self.status["nat_persistence"] = True
 			self.status["routing_persistence"] = True
-			proxy_status = self.client.get_variable("","VariablesManager","CLIENT_PROXY_ENABLED")
-			self.external_interface = self.client.get_variable("","VariablesManager","EXTERNAL_INTERFACE")
+			try:
+				proxy_status = self.n4dclient.get_variable("CLIENT_PROXY_ENABLED")
+			except n4d.client.CallFailedError as e:
+				if e.code==-5:
+					proxy_status=None
+			try:
+				self.external_interface = self.n4dclient.get_variable("EXTERNAL_INTERFACE")
+			except n4d.client.CallFailedError as e:
+				if e.code==-5:
+					self.external_interface=None
 			if proxy_status == None:
 				self.proxy_var_initialized = False
 				proxy_status = True
@@ -71,8 +79,9 @@ class NatManager:
 				self.proxy_var_initialized = True
 			self.status["proxy"] = proxy_status
 			
-		except Exception as e:
-			self.status_error=_("N4D error: ") + str(e)
+	#	except Exception as e:
+	#		print("ERROR: %s"%e)
+	#		self.status_error=_("N4D error: ") + str(e)
 			#set msg error
 		
 	#def get_status_list
@@ -208,11 +217,11 @@ class NatManager:
 		state=args[-1]
 		if widget==self.swtrou:
 			print("Routing change %s"%state)
-			self.client.set_routing(self.key,"NetworkManager",state,self.status["routing_persistence"])
+			self.n4dclient.set_routing(self.key,"NetworkManager",state,self.status["routing_persistence"])
 
 		elif widget==self.swtnat:
 			print("NAT change %s"%state)
-			self.client.set_nat(self.key, "NetworkManager", state,self.status["nat_persistence"], self.external_interface)
+			self.n4dclient.set_nat(self.key, "NetworkManager", state,self.status["nat_persistence"], self.external_interface)
 		elif widget==self.swtpro:
 			self.set_client_proxy(state)
 
@@ -230,11 +239,11 @@ class NatManager:
 		
 		if not self.proxy_var_initialized:
 			#INIT VALUE
-			self.client.add_variable(self.key,"VariablesManager","CLIENT_PROXY_ENABLED",state,"","Variable to enable or disable proxy in classroom clients",[])
+			self.n4dclient.add_variable(self.key,"VariablesManager","CLIENT_PROXY_ENABLED",state,"","Variable to enable or disable proxy in classroom clients",[])
 			self.proxy_var_initialized=True
 			return True
 		
-		self.client.set_variable(self.key,"VariablesManager","CLIENT_PROXY_ENABLED",state)
+		self.n4dclient.set_variable(self.key,"VariablesManager","CLIENT_PROXY_ENABLED",state)
 		
 	#def set_client_proxy
 	
