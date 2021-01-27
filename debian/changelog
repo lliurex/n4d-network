@@ -1,3 +1,9 @@
+n4d-network (1.29.1) focal; urgency=medium
+
+  * First focal release
+
+ -- Juanma1980 <juanma1980@gmail.com>  Wed, 27 Jan 2021 16:29:46 +0100
+
 n4d-network (1.29) bionic; urgency=medium
 
   * Moved set_replica_interface from n4d-ldap
