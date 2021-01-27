@@ -90,7 +90,7 @@ class NetworkManager:
 
 		ip, netmask = None, None
 
-		self.n4dCore.set_variable('INTERNAL_INTERFACE',{'internal_interface':interface})
+		self.n4dCore.set_variable('INTERNAL_INTERFACE',interface)
 		#objects['VariablesManager'].init_variable('INTERNAL_INTERFACE',{'internal_interface':interface})
 		self.internal_interface = interface
 		try:
@@ -110,20 +110,31 @@ class NetworkManager:
 	#def set_internal_interfaces
 
 	def set_n4d_network_vars(self, ip, netmask):
-		self.n4dCore.set_variable('INTERNAL_NETWORK',{'ip':ip,'netmask':netmask})
-		self.n4dCore.set_variable('INTERNAL_MASK',{'internal_mask':netmask})
-		self.n4dCore.set_variable('SRV_IP',{'ip':ip})
+		network=ip.split(".")
+		network[-1]="0"
+		network=".".join(network)
+		self.n4dCore.set_variable('INTERNAL_NETWORK',network)
+		self.n4dCore.set_variable('INTERNAL_MASK',netmask)
+		self.n4dCore.set_variable('SRV_IP',ip)
 		#objects['VariablesManager'].init_variable('INTERNAL_NETWORK',{'ip':ip,'netmask':netmask})
 		#objects['VariablesManager'].init_variable('INTERNAL_MASK',{'internal_mask':netmask})
 		#objects['VariablesManager'].init_variable('SRV_IP',{'ip':ip})
 	#def set_n4d_network_vars
 
 	def set_external_interface(self, interface):
-		self.n4dCore.set_variable('EXTERNAL_INTERFACE',{'external_interface':interface})
+		self.n4dCore.set_variable('EXTERNAL_INTERFACE',interface)
 		#objects['VariablesManager'].init_variable('EXTERNAL_INTERFACE',{'external_interface':interface})
 		self.external_interface = interface
 		return n4d.responses.build_successful_call_response("external interface")
 	#def set_external_interface
+
+	def set_replicate_interface(self, interface ):
+		objects['VariablesManager'].init_variable("INTERFACE_REPLICATION",interface)
+		selt.replication_interface = interface
+		return n4d.responses.build_successful_call_response("Interface %s is replication interface now"%interface)
+	#def set_replicate_interface
+
+
 
 	def interface_dhcp(self, interface):
 		if interface == self.internal_interface:
