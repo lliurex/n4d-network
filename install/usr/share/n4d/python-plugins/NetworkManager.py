@@ -129,7 +129,8 @@ class NetworkManager:
 	#def set_external_interface
 
 	def set_replicate_interface(self, interface ):
-		objects['VariablesManager'].init_variable("INTERFACE_REPLICATION",interface)
+		#objects['VariablesManager'].init_variable("INTERFACE_REPLICATION",interface)
+		self.n4dCore.set_variable('INTERFACE_REPLICATION',interface)
 		selt.replication_interface = interface
 		return n4d.responses.build_successful_call_response("Interface %s is replication interface now"%interface)
 	#def set_replicate_interface
@@ -303,29 +304,30 @@ class NetworkManager:
 	#def clean_nat_services
 
 	def get_nat(self):
+		status=False
 		if self.external_interface == None:
 			#return {'status':False,'msg':'External interface is not defined'}
 			return n4d.responses.build_failed_call_response(UNDEFINED_EXT_IFACE_ERROR)
 		p = subprocess.Popen(['iptables-save','-t','nat'],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
-		output = p.communicate()[0].split('\n')
+		output = p.communicate()[0].decode("utf-8").split('\n')
 		needle = "-A POSTROUTING -o "+self.external_interface+" -j MASQUERADE"
 		if (needle in output):
 			#return {'status':True,'msg':'Nat is activated'}
-			return n4d.responses.build_successful_call_response("Nat is activated")
-		else:
-			return n4d.responses.build_failed_call_response(DISABLED_NAT_ERROR)
+			status=True
+		return n4d.responses.build_successful_call_response()
 			#return {'status':False,'msg':'Nat is not activated'}
 	#def get_nat
 
 	def get_nat_replication(self):
+		status=False
 		if self.replication_interface == None:
 		    return {'status':False,'msg':'External interface is not defined'}
 		p = subprocess.Popen(['iptables-save','-t','nat'],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
 		output = p.communicate()[0].split('\n')
 		needle = "-A POSTROUTING -o "+self.replication_interface
 		if needle in output and '-j SNAT' in output:
-				return n4d.responses.build_successful_call_response("Nat is activated")
-		return n4d.responses.build_failed_call_response(DISABLED_NAT_ERROR)
+			status=True
+		return n4d.responses.build_successful_call_response()
 	#def get_nat_replication
 
 	def set_routing(self, enable=True, persistent=False):
@@ -351,11 +353,8 @@ class NetworkManager:
 				ret = fd.readlines()[0].strip() == "1"
 		except:
 			pass
-		msg_value = "enabled" if ret else "disabled"
-		if ret:
-			return n4d.responses.build_successful_call_response('Routing is {msg_value}'.format(msg_value=msg_value))
-		else:
-			return n4d.responses.build_failed_call_response(DISABLED_NAT_ERROR)
+		msg_value = True if ret else False
+		return n4d.responses.build_successful_call_response(msg_value)
 		#return {'status':ret,'msg':'Routing is {msg_value}'.format(msg_value=msg_value)}
 	#def get_routing
 
@@ -370,21 +369,19 @@ class NetworkManager:
 		else:
 			result = False
 			status = 'disabled'
-		if result:
-			return n4d.responses.build_successful_call_response('Nat persistence is {msg_value}'.format(msg_value=msg_value))
-		else:
-			return n4d.responses.build_failed_call_response(DISABLED_NAT_ERROR)
+		return n4d.responses.build_successful_call_response(result)
 	#	return {'status': result,'msg' : 'Nat persistence is ' + status }
 	#def get_nat_persistent
 
 	def get_routing_persistence(self):
+		status=True
 		with open(self.routing_path,'r') as fd:
 			s = mmap.mmap(fd.fileno(), 0, access=mmap.ACCESS_READ)
 			if s.find('net.ipv4.ip_forward=') == -1:
 				#return {'status':False, 'msg':'Routing persistent is disabled'}
-				return n4d.responses.build_failed_call_response(DISABLED_NAT_ERROR)
+				status=False
 
-		return n4d.responses.build_successful_call_response('Routing persistent is enabled')
+		return n4d.responses.build_successful_call_response(status)
 		#return {'status':True,'msg':'Routing persistent is enabled'}
 	#def get_routing_persistent
 
