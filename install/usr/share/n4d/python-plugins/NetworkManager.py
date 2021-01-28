@@ -129,7 +129,8 @@ class NetworkManager:
 	#def set_external_interface
 
 	def set_replicate_interface(self, interface ):
-		objects['VariablesManager'].init_variable("INTERFACE_REPLICATION",interface)
+		#objects['VariablesManager'].init_variable("INTERFACE_REPLICATION",interface)
+		self.n4dCore.set_variable('INTERFACE_REPLICATION',interface)
 		selt.replication_interface = interface
 		return n4d.responses.build_successful_call_response("Interface %s is replication interface now"%interface)
 	#def set_replicate_interface
