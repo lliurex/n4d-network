@@ -9,13 +9,13 @@ Homepage: http://www.lliurex.net
 
 Package: n4d-nat-frontend
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet, policykit-1, python3-yaml
+Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python3-llxnet, policykit-1, python3-yaml
 Description: GUI to configure NAT and Routing 
  GUI to configure NAT and Routing based on n4d-network
 
 
 Package: n4d-network
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python-llxvars, python-llxnet (>=0.20), n4d-lliurex-base (>=0.7), python3-networkmanager, python3-yaml
+Depends: ${shlibs:Depends}, ${misc:Depends}, n4d, python3-llxnet (>=0.20), n4d-lliurex-base (>=0.7), python3-networkmanager, python3-yaml
 Description: N4D plugin to configure network interface
  Utility by configure interface, mask, etc
