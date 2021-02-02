@@ -236,6 +236,11 @@ class NetworkManager:
 			msg = 'Nat is disabled on {eth}'.format(eth=eth)
 		return {'status': True, 'msg':msg}
 	#def set_nat
+    def set_replicate_interface(self, interface ):
+            objects['VariablesManager'].init_variable("INTERFACE_REPLICATION",{"INTERFACE_REPLICATION":interface})
+            selt.replication_interface = interface
+            return {"status":True,"msg":"Interface " + str(interface) + " is replication interface now"}
+    #def set_replicate_interface
 
 	def set_nat_replication(self, enable=True, persistent=False, eth=None):
 		msg = ''

@@ -1,9 +1,10 @@
 import dbus
-from yaml import load_yaml
-from tar import open as tar_open
+from yaml import load as load_yaml
+from tarfile import open as tar_open
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, mkdtemp
 from netaddr import IPNetwork, IPAddress
+from shutil import copy as shutil_copy
 import subprocess
 
 from n4d.server.core import Core
@@ -11,9 +12,16 @@ from n4d.utils import get_backup_name
 import n4d.responses
 import lliurex.net
 
-
-
 class NetworkManager:
+
+    # ERROR LIST
+    VALUE_MUST_BE_STRING = -10
+    EXTERNAL_INTERFACE_NOT_DEFINED = -20
+    REPLICATION_INTERFACE_NOT_DEFINED = -21
+    NOT_EXISTS_REPLICATION_CONFIG = -30
+    DHCP_NOT_POSIBLE = -40
+    BACKUP_FAILED = -50
+    
     def __init__(self):
         self.core = Core.get_core()
         self.systembus = dbus.SystemBus()
@@ -21,7 +29,8 @@ class NetworkManager:
         self.systemdmanager = dbus.Interface(systemd1,'org.freedesktop.systemd1.Manager')
         self.network_file = Path("/etc/netplan/20-lliurex.yaml")
         self.replication_network_file = Path("/etc/netplan/30-replication-lliurex.yaml")
-        self.routing_path = "/etc/sysctl.d/10-lliurex-forwarding.conf"
+        self.routing_path = Path("/etc/sysctl.d/10-lliurex-forwarding.conf")
+        self.resolved_path = Path("/etc/systemd/resolved.conf.d/lliurex-dnsmasq.conf")
         self.interfaces="/etc/network/interfaces"
         self.backup_files=[ self.network_file, self.replication_network_file, self.routing_path, self.interfaces ]
 
@@ -44,7 +53,7 @@ class NetworkManager:
     def load_network_config( self, path_file ):
         with path_file.open( 'r', encoding='utf-8' ) as fd:
             config = load_yaml( fd )
-        
+
         if config is None:
             config = {}
         if not "network" in config:
@@ -78,10 +87,15 @@ class NetworkManager:
         return n4d.responses.build_successful_call_response( True, "Set {0} as external interface".format( interface ) )
     #def set_external_interface
 
+    def set_replicate_interface(self, interface ):
+        self.core.set_variable("INTERFACE_REPLICATION", interface)
+        return n4d.responses.build_successful_call_response(True, "Interface {0} is replication interface now".format(interface) )
+    #def set_replicate_interface
+
     def interface_dhcp(self, interface):
         if interface == self.core.get_variable("INTERNAL_INTERFACE"):
-            return n4d.responses.build_failed_call_response(False, "Interface {interface} is impossible set to dhcp".format(interface=interface))
-        
+            return n4d.responses.build_failed_call_response(NetworkManager.DHCP_NOT_POSIBLE)
+
         self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
         self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4'],True)
         self.secure_insert_dictionary(self.config,['network','ethernets',interface,'dhcp4-overrides','use-dns'],False)
@@ -95,8 +109,8 @@ class NetworkManager:
         # Falta que se escriba el fichero
         self.safe_config('network')
         return n4d.responses.build_successful_call_response(True,"Interface {interface} has been changed to dhcp".format(interface=interface) )
-    
-    #def interface_dhcp    
+
+    #def interface_dhcp
 
     def interface_static(self, interface, ip, netmask, gateway=None, dnssearch=None):
 
@@ -144,7 +158,7 @@ class NetworkManager:
         try:
             return n4d.responses.build_successful_call_response(self.replication_config['network']['ethernets'][self.core.get_variable("INTERFACE_REPLICATION")]['addresses'][0])
         except:
-            return n4d.responses.build_failed_call_response(False, "There isn't replication config")
+            return n4d.responses.build_failed_call_response(NetworkManager.NOT_EXISTS_REPLICATION_CONFIG)
     #def get_replication_network
 
     def secure_insert_dictionary(self, target, key_path, value):
@@ -200,13 +214,13 @@ class NetworkManager:
         if isinstance(eth, str):
             return n4d.responses.build_successful_call_response(lliurex.net.get_device_info(eth))
         else:
-            return n4d.responses.build_failed_call_response(False, 'eth must to be string')
+            return n4d.responses.build_failed_call_response(NetworkManager.VALUE_MUST_BE_STRING)
     #def get_info_eth
 
 
     def set_nat(self, enable=True, persistent=False , eth=None):
         if not isinstance(eth,str):
-            return n4d.responses.build_failed_call_response(False, "eth must be string")
+            return n4d.responses.build_failed_call_response(NetworkManager.VALUE_MUST_BE_STRING)
         msg = ''
         if enable:
             self.systemdmanager.EnableUnitFiles(['enablenat@{iface}.service'.format(iface=eth)],not persistent, True)
@@ -221,7 +235,7 @@ class NetworkManager:
 
     def set_nat_replication(self, enable=True, persistent=False, eth=None):
         if not isinstance(eth,str):
-            return n4d.responses.build_failed_call_response(False, "eth must be string")
+            return n4d.responses.build_failed_call_response(NetworkManager.VALUE_MUST_BE_STRING)
         msg = ''
         if enable:
             self.systemdmanager.EnableUnitFiles(['enablenatreplication@{iface}.service'.format(iface=eth)],not persistent, True)
@@ -244,8 +258,9 @@ class NetworkManager:
 
     def get_nat(self):
         external_interface = self.core.get_variable("EXTERNAL_INTERFACE")
-        if external_interface is None
-            return n4d.responses.build_failed_call_response(False, "External interface is not defined")
+        if external_interface is None:
+            return n4d.responses.build_failed_call_response(NetworkManager.EXTERNAL_INTERFACE_NOT_DEFINED)
+            
         p = subprocess.Popen(['iptables-save','-t','nat'],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
         output = p.communicate()[0].split('\n')
         needle = "-A POSTROUTING -o " + external_interface + " -j MASQUERADE"
@@ -255,7 +270,103 @@ class NetworkManager:
             return n4d.responses.build_successful_call_response( False, "Nat is not activated" )
     #def get_nat
 
-################### VOY POR AQUI, REVISAR QUIEN PONE LA VARIABLE INTERFACE_REPLICATION
+    def get_nat_replication(self):
+        replication_interface = self.core.get_variable("INTERFACE_REPLICATION")
+        if replication_interface is None:
+            return n4d.responses.build_failed_call_response(NetworkManager.REPLICATION_INTERFACE_NOT_DEFINED)
+        p = subprocess.Popen(['iptables-save','-t','nat'],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+        output = p.communicate()[0].split('\n')
+        needle = "-A POSTROUTING -o " + replication_interface
+        if needle in output and '-j SNAT' in output:
+            return n4d.responses.build_successful_call_response(True, 'Nat is activated')
+        return n4d.responses.build_successful_call_response(False,'Nat is not activated')
+    #def get_nat_replication    
+
+    def set_routing(self, enable=True, persistent=False):
+        value = "1" if enable else "0"
+        with Path('/proc/sys/net/ipv4/ip_forward').open('w', encoding='utf-8') as fd:
+            fd.write(value)
+        with Path('/proc/sys/net/ipv6/conf/all/forwarding').open('w', encoding='utf-8') as fd:
+            fd.write(value)
+
+        if persistent:
+            if enable:
+                self.change_option_sysctl(self.routing_path,'net.ipv4.ip_forward','net.ipv4.ip_forward=1')
+                self.change_option_sysctl(self.routing_path,'net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=1')
+            else:
+                self.change_option_sysctl(self.routing_path,'net.ipv4.ip_forward','net.ipv4.ip_forward=0')
+                self.change_option_sysctl(self.routing_path,'net.ipv6.conf.all.forwarding','net.ipv6.conf.all.forwarding=0')
+        return n4d.responses.build_successful_call_response(True)
+    #def set_routing
+
+    def get_routing(self):
+        ret = False
+        try:
+            with Path('/proc/sys/net/ipv4/ip_forward').open('r',encoding='utf-8') as fd:
+                ret = fd.readlines()[0].strip() == "1"
+        except:
+            pass
+        msg_value = "enabled" if ret else "disabled"
+        return n4d.responses.build_successful_call_response(ret,msg='Routing is {msg_value}'.format(msg_value=msg_value) )
+    #def get_routing
+
+
+    def change_option_sysctl(self, file_path, needle,value):
+        if file_path.exists():
+            with file_path.open('r',encoding='utf-8') as fd:
+                lines = fd.readlines()
+        else:
+                lines = []
+        found = False
+        with file_path.open('w',encoding='utf-8') as fd:
+            for x in lines:
+                if needle in x:
+                    fd.write("{0}\n".format(value))
+                    found = True
+                    continue
+                fd.write(x)
+            if not found:
+                fd.write("{0}\n".format(value))
+    #def change_option_sysctl
+
+    def is_static(self, interface):
+        try:
+            if len(self.config['network']['ethernets'][interface]['addresses']) > 0:
+                return n4d.responses.build_successful_call_response(True,'Interface {interface} has static configuration'.format(interface=interface))
+        except:
+            pass
+        return n4d.responses.build_successful_call_response(False, 'Interface {interface} has dynamic configuration'.format(interface=interface) )
+    #def is_static
+
+    def systemd_resolv_conf(self):
+        conf = "[Resolve]\nDNS=127.0.0.1\nDNSStubListener=no\n"
+        self.resolved_path.parent.mkdir(parents=True, exist_ok=True)
+        with self.resolved_path.open('w', encoding='utf-8') as fd:
+            fd.write(conf)
+        self.systemdmanager.RestartUnit("systemd-resolved.service","replace")
+        return n4d.responses.build_successful_call_response(True)
+    #def systemd_resolv_conf
+
+    def apply_changes(self):
+        os.system('netplan apply')
+        if self.resolved_path.exists(): 
+            self.systemdmanager.RestartUnit("systemd-resolved.service","replace")
+        return n4d.responses.build_successful_call_response(True)
+    #def apply_changes
+
+    def check_devices(self, list_devices_name, timeout=90):
+        all_devices ={}
+        general_network = self.systembus.get_object('org.freedesktop.network1','/org/freedesktop/network1')
+        general_network_interface = dbus.Interface(general_network, 'org.freedesktop.network1.Manager')
+        for x in general_network_interface.ListLinks():
+            if x[1] in list_devices_name:
+                all_devices[x[1]]= x[2]
+        for x in  all_devices.keys():
+            w = self.systembus.get_object('org.freedesktop.network1', all_devices[x])
+            z = dbus.Interface(w, 'org.freedesktop.DBus.Properties')
+            if z.Get('org.freedesktop.network1.Link','OperationalState') != 'routable':
+                return n4d.responses.build_successful_call_response(False)
+        return n4d.responses.build_successful_call_response(True)
 
 
     def get_nat_persistence(self):
@@ -270,6 +381,14 @@ class NetworkManager:
                 status = "disabled"
         return n4d.responses.build_successful_call_response(result, "Nat persistence is {0}".format(status))
     #def get_nat_persistence
+
+    def get_routing_persistence(self):
+        with self.routing_path.open('r',encoding='utf-8') as fd:
+            s = mmap.mmap(fd.fileno(), 0, access=mmap.ACCESS_READ)
+            if s.find(b'net.ipv4.ip_forward=') == -1:
+                return n4d.responses.build_successful_call_response( False, 'Routing persistent is disabled' )
+        return n4d.responses.build_successful_call_response( True, 'Routing persistent is enabled' )
+    #def get_routing_persistent
 
     def backup(self,dir_path="/backup"):
         try:
@@ -298,6 +417,42 @@ class NetworkManager:
             
         except Exception as e:
             self.dprint("Backup failed: {0}".format(str(e)))
-            return n4d.responses.build_failed_call_response(False, "[NetworkManager] backup failed {0}".format(str(e)))
+            return n4d.responses.build_failed_call_response(NetworkManager.BACKUP_FAILED, "[NetworkManager] backup failed {0}".format(str(e)))
     #def backup
-    
+
+    def restore(self, backupfile=None):
+        if backupfile is None:
+            dir_path = Path('/backup')
+            for f in dir_path.iterdir():
+                if f.name == 'NetworkManager':
+                    file_path = f
+                    break
+        else:
+            file_path = Path(backupfile)
+
+        if file_path.exists():
+            tmp_dir = Path(mkdtemp())
+            tar = tar_open(file_path)
+            tar.extractall(tmp_dir)
+            tar.close()
+            
+            if tmp_dir.joinpath('nat').exists():
+                external_interface = 'eth1'
+                with tmp_dir.joinpath('nat').open('r',encoding='utf-8') as fd:
+                    external_interface = fd.readline().strip()
+                self.set_nat( True, True, external_interface )
+
+            for f in self.backup_files:
+                print("Restoring {0}".format(f))
+                tmp_path = tmp_dir.joinpath(f.relative_to('/'))
+                if tmp_path.exists():
+                    shutil_copy(tmp_path, f)
+        self.apply_changes()
+        return n4d.responses.build_successful_call_response("True")
+    #def restore
+
+
+
+
+
+
