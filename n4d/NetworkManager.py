@@ -1,11 +1,13 @@
 import dbus
-from yaml import load as load_yaml
+from yaml import load as load_yaml, FullLoader as full_loader_yaml, dump as dump_yaml
 from tarfile import open as tar_open
 from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
-from netaddr import IPNetwork, IPAddress
 from shutil import copy as shutil_copy
+from shlex  import split as split_shlex
 import subprocess
+import ipaddress
+
 
 from n4d.server.core import Core
 from n4d.utils import get_backup_name
@@ -52,8 +54,7 @@ class NetworkManager:
 
     def load_network_config( self, path_file ):
         with path_file.open( 'r', encoding='utf-8' ) as fd:
-            config = load_yaml( fd )
-
+            config = load_yaml( fd , Loader=full_loader_yaml)
         if config is None:
             config = {}
         if not "network" in config:
@@ -68,9 +69,9 @@ class NetworkManager:
         self.core.set_variable("INTERNAL_INTERFACE", interface)
         ip = None
         try:
-            ip = IPNetwork(self.config["network"]["ethernets"][interface]["addresses"][0])
+            ip = ipaddress.ip_interface(self.config["network"]["ethernets"][interface]["addresses"][0])
         except:
-            ip = lliurex.net.get_IPNewtork_object(interface)
+            ip = lliurex.net.get_ip_interface(interface)
         if ip is not None:
             self.set_n4d_network_vars(ip)
         return n4d.responses.build_successful_call_response(True, "Set internal interface")
@@ -79,7 +80,7 @@ class NetworkManager:
     def set_n4d_network_vars( self, ip ):
         self.core.set_variable("SRV_IP", str(ip.ip))
         self.core.set_variable("INTERNAL_NETWORK",str(ip.network))
-        self.core.set_variable("INTERNAL_MASK",ip.prefixlen)
+        self.core.set_variable("INTERNAL_MASK",ip.network.prefixlen)
     #def set_n4d_network_vars
 
     def set_external_interface( self, interface ):
@@ -114,7 +115,7 @@ class NetworkManager:
 
     def interface_static(self, interface, ip, netmask, gateway=None, dnssearch=None):
 
-        ip_object = IPNetwork('{ip}/{mask}'.format(ip=ip, mask= netmask))
+        ip_object = ipaddress.ip_interface('{ip}/{mask}'.format(ip=ip, mask= netmask))
         self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
         self.secure_insert_dictionary(self.config,['network','ethernets',interface,'addresses',0], str(ip_object))
         self.secure_insert_dictionary(self.config,['network','ethernets',interface,'renderer'], 'networkd')
@@ -134,7 +135,7 @@ class NetworkManager:
             self.secure_delete_key_dictionary(self.replication_config,['network','ethernets'])
             msg = 'Replication interfaces has been disabled'
         elif ip is not None and netmask is not None:
-            ip_object = IPNetwork('{ip}/{mask}'.format(ip=ip, mask= netmask))
+            ip_object = ipaddress.ip_interface('{ip}/{mask}'.format(ip=ip, mask= netmask))
             self.secure_insert_dictionary(self.replication_config,['network','ethernets',interface,'addresses',0],str(ip_object))
             msg = 'Replication interface now is {interface}'.format(interface=interface)
         self.safe_config('replication')
@@ -151,7 +152,7 @@ class NetworkManager:
         else:
             return False
         with file_config.open('w',encoding='utf-8') as stream:
-            yaml.dump(config, stream)
+            dump_yaml(config, stream)
     #def safe_config
 
     def get_replication_network(self):
@@ -262,7 +263,7 @@ class NetworkManager:
             return n4d.responses.build_failed_call_response(NetworkManager.EXTERNAL_INTERFACE_NOT_DEFINED)
             
         p = subprocess.Popen(['iptables-save','-t','nat'],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
-        output = p.communicate()[0].split('\n')
+        output = p.communicate()[0].decode('utf-8').split('\n')
         needle = "-A POSTROUTING -o " + external_interface + " -j MASQUERADE"
         if (needle in output):
             return n4d.responses.build_successful_call_response( True, "Nat is activated" )
@@ -275,7 +276,7 @@ class NetworkManager:
         if replication_interface is None:
             return n4d.responses.build_failed_call_response(NetworkManager.REPLICATION_INTERFACE_NOT_DEFINED)
         p = subprocess.Popen(['iptables-save','-t','nat'],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
-        output = p.communicate()[0].split('\n')
+        output = p.communicate()[0].decode('utf-8').split('\n')
         needle = "-A POSTROUTING -o " + replication_interface
         if needle in output and '-j SNAT' in output:
             return n4d.responses.build_successful_call_response(True, 'Nat is activated')
@@ -307,7 +308,7 @@ class NetworkManager:
         except:
             pass
         msg_value = "enabled" if ret else "disabled"
-        return n4d.responses.build_successful_call_response(ret,msg='Routing is {msg_value}'.format(msg_value=msg_value) )
+        return n4d.responses.build_successful_call_response(ret,'Routing is {msg_value}'.format(msg_value=msg_value) )
     #def get_routing
 
 
@@ -348,11 +349,18 @@ class NetworkManager:
     #def systemd_resolv_conf
 
     def apply_changes(self):
-        os.system('netplan apply')
+        p = subprocess.Popen(split_shlex('netplan apply'))
+        p.communicate()
+        if p.returncode != 0:
+            return n4d.responses.build_successful_call_response(False)
         if self.resolved_path.exists(): 
             self.systemdmanager.RestartUnit("systemd-resolved.service","replace")
         return n4d.responses.build_successful_call_response(True)
     #def apply_changes
+
+    def get_interfaces(self):
+        return n4d.responses.build_successful_call_response([x['name']in lliurex.net.get_devices()])
+
 
     def check_devices(self, list_devices_name, timeout=90):
         all_devices ={}
