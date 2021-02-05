@@ -1,0 +1,201 @@
+{
+    "SETUP": {
+        "type": "python",
+        "path": "NetworkManager.py",
+        "class": "NetworkManager"
+    },
+    "METHODS": {
+        "dprint": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "load_network_file": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "load_network_config": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "set_internal_interface": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "set_n4d_network_vars": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "set_external_interface": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "set_replicate_interface": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "interface_dhcp": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "interface_static": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "set_replication_interface": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "safe_config": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "get_replication_network": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "secure_insert_dictionary": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "secure_delete_key_dictionary": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "get_info_eth": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "set_nat": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "set_nat_replication": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "clean_nat_services": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "get_nat": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "get_nat_replication": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "set_routing": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "get_routing": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "change_option_sysctl": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "is_static": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "systemd_resolv_conf": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "apply_changes": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "get_interfaces": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "check_devices": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "get_nat_persistence": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "get_routing_persistence": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "backup": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "restore": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        }
+    }
+}
