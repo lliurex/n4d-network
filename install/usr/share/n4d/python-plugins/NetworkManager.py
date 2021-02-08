@@ -96,7 +96,7 @@ class NetworkManager:
     #def set_replicate_interface
 
     def interface_dhcp(self, interface):
-        if interface == self.core.get_variable("INTERNAL_INTERFACE"):
+        if interface == self.core.get_variable("INTERNAL_INTERFACE")['return']:
             return n4d.responses.build_failed_call_response(NetworkManager.DHCP_NOT_POSIBLE)
 
         self.secure_delete_key_dictionary(self.config,['network','ethernets',interface])
@@ -125,7 +125,7 @@ class NetworkManager:
             self.secure_insert_dictionary(self.config,['network','ethernets',interface,'gateway4'], gateway )
         if dnssearch is not None:
             self.secure_insert_dictionary(self.config,['network','ethernets',interface,'nameservers','search',0], dnssearch)
-        if self.core.get_variable("INTERNAL_INTERFACE") == interface:
+        if self.core.get_variable("INTERNAL_INTERFACE")['return'] == interface:
             self.set_n4d_network_vars(ip_object)
         self.safe_config('network')
         return n4d.responses.build_successful_call_response(True, "Interface {interface} has been changed to static".format(interface=interface))
@@ -159,7 +159,7 @@ class NetworkManager:
 
     def get_replication_network(self):
         try:
-            return n4d.responses.build_successful_call_response(self.replication_config['network']['ethernets'][self.core.get_variable("INTERFACE_REPLICATION")]['addresses'][0])
+            return n4d.responses.build_successful_call_response(self.replication_config['network']['ethernets'][self.core.get_variable("INTERFACE_REPLICATION")['return']]['addresses'][0])
         except:
             return n4d.responses.build_failed_call_response(NetworkManager.NOT_EXISTS_REPLICATION_CONFIG)
     #def get_replication_network
@@ -260,7 +260,7 @@ class NetworkManager:
     #def clean_nat_services
 
     def get_nat(self):
-        external_interface = self.core.get_variable("EXTERNAL_INTERFACE")
+        external_interface = self.core.get_variable("EXTERNAL_INTERFACE")['return']
         if external_interface is None:
             return n4d.responses.build_failed_call_response(NetworkManager.EXTERNAL_INTERFACE_NOT_DEFINED)
             
@@ -274,7 +274,7 @@ class NetworkManager:
     #def get_nat
 
     def get_nat_replication(self):
-        replication_interface = self.core.get_variable("INTERFACE_REPLICATION")
+        replication_interface = self.core.get_variable("INTERFACE_REPLICATION")['return']
         if replication_interface is None:
             return n4d.responses.build_failed_call_response(NetworkManager.REPLICATION_INTERFACE_NOT_DEFINED)
         p = subprocess.Popen(['iptables-save','-t','nat'],stdout=subprocess.PIPE,stdin=subprocess.PIPE)
@@ -382,7 +382,7 @@ class NetworkManager:
     def get_nat_persistence(self):
         result = False
         status = "disabled"
-        if self.core.get_variable("EXTERNAL_INTERFACE") is not None:
+        if self.core.get_variable("EXTERNAL_INTERFACE")['return'] is not None:
             try:
                 status = str(self.systemdmanager.GetUnitFileState('enablenat.service'))
                 result = status == 'enabled'
