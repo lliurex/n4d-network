@@ -25,6 +25,8 @@ class NetworkManager:
     BACKUP_FAILED = -50
     
     def __init__(self):
+        with Path('/etc/nat_enabler.conf').open('w',encoding='utf-8') as fd:
+            fd.write('PATH_INTERNAL_INTERFACES=/usr/share/n4d-network/list_internal_interfaces')
         self.core = Core.get_core()
         self.systembus = dbus.SystemBus()
         systemd1 = self.systembus.get_object('org.freedesktop.systemd1','/org/freedesktop/systemd1')
