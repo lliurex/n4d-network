@@ -9,9 +9,9 @@ if __name__ == "__main__":
             variable = load(fd)
             try:
                 result = variable['INTERNAL_INTERFACE']['value'].encode('UTF-8')
-                if result isinstance str:
+                if isinstance(result,str):
                     print(result)
-                elif result isinstance list:
+                elif isinstance(result, list):
                     print(" ".join(result))
                 else:
                     print("")
