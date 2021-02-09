@@ -7,7 +7,7 @@ from shutil import copy as shutil_copy
 from shlex  import split as split_shlex
 import subprocess
 import ipaddress
-
+import mmap
 
 from n4d.server.core import Core
 from n4d.utils import get_backup_name

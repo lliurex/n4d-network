@@ -8,7 +8,7 @@ if __name__ == "__main__":
         with path_var.open('r',encoding='utf-8') as fd:
             variable = load(fd)
             try:
-                result = variable['INTERNAL_INTERFACE']['value'].encode('UTF-8')
+                result = variable['INTERNAL_INTERFACE']['value']
                 if isinstance(result,str):
                     print(result)
                 elif isinstance(result, list):
