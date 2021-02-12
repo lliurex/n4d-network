@@ -81,7 +81,7 @@ class NetworkManager:
 
     def set_n4d_network_vars( self, ip ):
         self.core.set_variable("SRV_IP", str(ip.ip))
-        self.core.set_variable("INTERNAL_NETWORK",str(ip.network))
+        self.core.set_variable("INTERNAL_NETWORK",str(ip.network.network_address))
         self.core.set_variable("INTERNAL_MASK",ip.network.prefixlen)
     #def set_n4d_network_vars
 
