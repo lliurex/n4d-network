@@ -1,3 +1,9 @@
+n4d-network (1.32.5) focal; urgency=medium
+
+  * Enable module
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 12 Feb 2021 15:21:55 +0100
+
 n4d-network (1.32.4) focal; urgency=medium
 
   * Fixed network value
