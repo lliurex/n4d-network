@@ -371,6 +371,8 @@ class NetworkManager:
             i.communicate()
             e = subprocess.Popen(command%(eiface,eiface),shell=True)
             e.communicate()
+            n = subprocess.Popen("systemctl restart network-manager",shell=True)
+            n.communicate()
             return n4d.responses.build_successful_call_response()
         except Exception as e:
             return n4d.responses.build_failed_call_response(RESTART_IFACES_FAILED,str(e))
