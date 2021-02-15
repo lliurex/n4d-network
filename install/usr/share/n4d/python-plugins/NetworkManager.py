@@ -23,6 +23,7 @@ class NetworkManager:
     NOT_EXISTS_REPLICATION_CONFIG = -30
     DHCP_NOT_POSIBLE = -40
     BACKUP_FAILED = -50
+    RESTART_IFACES_FAILED=-60
     
     def __init__(self):
         with Path('/etc/nat_enabler.conf').open('w',encoding='utf-8') as fd:
@@ -81,7 +82,7 @@ class NetworkManager:
 
     def set_n4d_network_vars( self, ip ):
         self.core.set_variable("SRV_IP", str(ip.ip))
-        self.core.set_variable("INTERNAL_NETWORK",str(ip.network))
+        self.core.set_variable("INTERNAL_NETWORK",str(ip.network.network_address))
         self.core.set_variable("INTERNAL_MASK",ip.network.prefixlen)
     #def set_n4d_network_vars
 
@@ -353,12 +354,27 @@ class NetworkManager:
     def apply_changes(self):
         p = subprocess.Popen(split_shlex('netplan apply'))
         p.communicate()
+        self.restart_ifaces()
         if p.returncode != 0:
             return n4d.responses.build_successful_call_response(False)
         if self.resolved_path.exists(): 
             self.systemdmanager.RestartUnit("systemd-resolved.service","replace")
         return n4d.responses.build_successful_call_response(True)
     #def apply_changes
+
+    def restart_ifaces(self):
+        try:
+            iiface=self.core.get_variable("INTERNAL_INTERFACE")["return"]
+            eiface=self.core.get_variable("EXTERNAL_INTERFACE")["return"]
+            command="ip link set %s down; ip link set %s up"
+            i = subprocess.Popen(command%(iiface,iiface),shell=True)
+            i.communicate()
+            e = subprocess.Popen(command%(eiface,eiface),shell=True)
+            e.communicate()
+            return n4d.responses.build_successful_call_response()
+        except Exception as e:
+            return n4d.responses.build_failed_call_response(RESTART_IFACES_FAILED,str(e))
+    #def restart_ifaces
 
     def get_interfaces(self):
         return n4d.responses.build_successful_call_response([x['name']in lliurex.net.get_devices()])
