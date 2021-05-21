@@ -35,10 +35,15 @@ class NatManager:
 			dialog.destroy()
 			sys.exit(0)
 #		self.client=xmlrpclib.ServerProxy("https://"+ip+":9779")
-		self.n4dclient=n4d.client.Client("https://%s:9779"%ip)
-		self.status={}
-		self.get_status_list()
-		self.build_gui()
+		master_key=n4d.client.Key.master_key()
+		if master_key.valid():
+			self.n4dclient=n4d.client.Client(key=master_key)
+			self.status={}
+			self.get_status_list()
+			self.build_gui()
+		else:
+			print("n4d key not valid")
+			sys.exit(0)
 	
 	def read_key(self):
 		
@@ -56,9 +61,10 @@ class NatManager:
 		
 	#		try:
 			
-			ret = self.n4dclient.get_nat("","NetworkManager")
+			#ret = self.n4dclient.get_nat("","NetworkManager")
+			ret=self.n4dclient.NetworkManager.get_nat()
 			self.status["nat"] = ret
-			ret = self.n4dclient.get_routing("","NetworkManager")
+			ret = self.n4dclient.NetworkManager.get_routing()
 			self.status["routing"] = ret
 			self.status["nat_persistence"] = True
 			self.status["routing_persistence"] = True
@@ -217,11 +223,13 @@ class NatManager:
 		state=args[-1]
 		if widget==self.swtrou:
 			print("Routing change %s"%state)
-			self.n4dclient.set_routing(self.key,"NetworkManager",state,self.status["routing_persistence"])
-
+			#Old n4d: self.n4dclient.set_routing(self.key,"NetworkManager",state,self.status["routing_persistence"])
+			self.n4dclient.NetworkManager.set_routing(state,self.status["routing_persistence"])
+			
 		elif widget==self.swtnat:
 			print("NAT change %s"%state)
-			self.n4dclient.set_nat(self.key, "NetworkManager", state,self.status["nat_persistence"], self.external_interface)
+			#Old n4d: self.n4dclient.set_nat(self.key, "NetworkManager", state,self.status["nat_persistence"], self.external_interface)
+			self.n4dclient.NetworkManager.set_nat(state,self.status["nat_persistence"], self.external_interface)
 		elif widget==self.swtpro:
 			self.set_client_proxy(state)
 
@@ -239,12 +247,14 @@ class NatManager:
 		
 		if not self.proxy_var_initialized:
 			#INIT VALUE
-			self.n4dclient.add_variable(self.key,"VariablesManager","CLIENT_PROXY_ENABLED",state,"","Variable to enable or disable proxy in classroom clients",[])
+			#old n4d:self.n4dclient.add_variable(self.key,"VariablesManager","CLIENT_PROXY_ENABLED",state,"","Variable to enable or disable proxy in classroom clients",[])
+			self.n4dclient.set_variable("CLIENT_PROXY_ENABLED",state)
 			self.proxy_var_initialized=True
 			return True
 		
-		self.n4dclient.set_variable(self.key,"VariablesManager","CLIENT_PROXY_ENABLED",state)
-		
+		#Old n4d: self.n4dclient.set_variable(self.key,"VariablesManager","CLIENT_PROXY_ENABLED",state)
+		self.n4dclient.set_variable("CLIENT_PROXY_ENABLED",state)
+
 	#def set_client_proxy
 	
 	def close_window(self,widget):
