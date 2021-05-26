@@ -1,3 +1,9 @@
+n4d-network (1.35) focal; urgency=medium
+
+  * Fixed nat-manager gui
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 26 May 2021 15:37:21 +0200
+
 n4d-network (1.34) focal; urgency=medium
 
   * Added network manager restart in restart_ifaces. Seems nm still believes
