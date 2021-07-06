@@ -1,3 +1,9 @@
+n4d-network (1.36.1) focal; urgency=medium
+
+  * Fixed n4d module loading
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Tue, 06 Jul 2021 10:16:18 +0200
+
 n4d-network (1.36) focal; urgency=medium
 
   * New methods "clean_mirror_redirect_service & unset_replication_vars
