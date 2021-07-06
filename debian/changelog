@@ -1,6 +1,7 @@
 n4d-network (1.37) focal; urgency=medium
 
   * Fixed backup function
+  * clean_mirror_redirect_service & unset_replication_vars
 
  -- Hector Garcia Huerta <hectorgh@gmail.com>  Tue, 06 Jul 2021 13:44:01 +0200
 
