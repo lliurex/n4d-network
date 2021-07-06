@@ -260,6 +260,24 @@ class NetworkManager:
         return n4d.responses.build_successful_call_response(True,'All nat services has been disabled')
     #def clean_nat_services
 
+    def clean_mirror_redirect_service(self):
+        unit_name = 'net-mirror-llx21.mount'
+        if len(self.systemdmanager.ListUnitsByNames([unit_name])) != 0:
+            try:
+                self.systemdmanager.StopUnit(unit_name,'replace')
+                self.systemdmanager.DisableUnitFiles([unit_name],False)
+            except Exception as e:
+                pass
+            return n4d.responses.build_successful_call_response(True,"Cleared mirror-redirect service")
+        return n4d.responses.build_successful_call_response(True,"Clear mirror-redirect service not needed")
+    #def clean_mirror_redirect_service
+
+    def unset_replication_vars(self):
+        self.core.delete_variable('INTERFACE_REPLICATION')
+        self.core.delete_variable('REPLICATION_NETWORK')
+        return n4d.responses.build_successful_call_response(True,"Cleared replication vars")
+    #def unset_replication_vars
+
     def get_nat(self):
         external_interface = self.core.get_variable("EXTERNAL_INTERFACE")['return']
         if external_interface is None:

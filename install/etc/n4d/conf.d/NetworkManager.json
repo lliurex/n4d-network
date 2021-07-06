@@ -196,6 +196,18 @@
                 "sudo",
                 "admins"
             ]
+        },
+        "clean_mirror_redirect_service": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
+        },
+        "unset_replication_vars": {
+            "allowed_groups": [
+                "sudo",
+                "admins"
+            ]
         }
     }
 }
