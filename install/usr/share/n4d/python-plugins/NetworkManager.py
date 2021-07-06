@@ -455,7 +455,7 @@ class NetworkManager:
                 tar.add( aux_file.name, arcname='nat' )
 
             tar.close()
-            if "aux_file_path" in locals and aux_file_path.exists():
+            if "aux_file_path" in locals() and aux_file_path.exists():
                 aux_file_path.unlink()
 
             self.dprint("Backup generated in {}".format(file_path))
