@@ -1,8 +1,40 @@
-n4d-network (1.32.5) focal; urgency=medium
+n4d-network (1.37) focal; urgency=medium
 
-  * Enable module
+  * Fixed backup function
+  * clean_mirror_redirect_service & unset_replication_vars
 
- -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 12 Feb 2021 15:21:55 +0100
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Tue, 06 Jul 2021 13:44:01 +0200
+
+n4d-network (1.36.1) focal; urgency=medium
+
+  * Fixed n4d module loading
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Tue, 06 Jul 2021 10:16:18 +0200
+
+n4d-network (1.36) focal; urgency=medium
+
+  * New methods "clean_mirror_redirect_service & unset_replication_vars
+
+ -- M.Angel Juan <m.angel.juan@gmail.com>  Mon, 05 Jul 2021 19:45:16 +0200
+
+n4d-network (1.35) focal; urgency=medium
+
+  * Fixed nat-manager gui
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 26 May 2021 15:37:21 +0200
+
+n4d-network (1.34) focal; urgency=medium
+
+  * Added network manager restart in restart_ifaces. Seems nm still believes
+    it handles internal and external interface. needs a restart
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Mon, 15 Feb 2021 13:26:51 +0100
+
+n4d-network (1.33) focal; urgency=medium
+
+  * Added restart_ifaces function
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Mon, 15 Feb 2021 10:52:15 +0100
 
 n4d-network (1.32.4) focal; urgency=medium
 
