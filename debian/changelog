@@ -1,3 +1,9 @@
+n4d-network (1.37.2) focal; urgency=medium
+
+  * fix tab
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 13 Jul 2021 09:59:01 +0200
+
 n4d-network (1.37.1) focal; urgency=medium
 
   * Replication interface rendered by networkd
