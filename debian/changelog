@@ -1,6 +1,6 @@
-n4d-network (1.37.2+nmu1) UNRELEASED; urgency=medium
+n4d-network (1.38) focal; urgency=medium
 
-  * Restore v1.37 functionality (no networkd for replication) 
+  * Restore version<=1.37 functionality (no networkd for replication) 
 
  -- Juanma1980 <juanma1980@gmail.com>  Thu, 15 Jul 2021 15:31:20 +0200
 
