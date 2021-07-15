@@ -1,3 +1,9 @@
+n4d-network (1.37.2+nmu1) UNRELEASED; urgency=medium
+
+  * Restore v1.37 functionality (no networkd for replication) 
+
+ -- Juanma1980 <juanma1980@gmail.com>  Thu, 15 Jul 2021 15:31:20 +0200
+
 n4d-network (1.37.2) focal; urgency=medium
 
   * fix tab
