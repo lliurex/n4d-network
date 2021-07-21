@@ -140,6 +140,7 @@ class NetworkManager:
         elif ip is not None and netmask is not None:
             ip_object = ipaddress.ip_interface('{ip}/{mask}'.format(ip=ip, mask= netmask))
             self.secure_insert_dictionary(self.replication_config,['network','ethernets',interface,'addresses',0],str(ip_object))
+            self.secure_insert_dictionary(self.replication_config,['network','ethernets',interface,'renderer'], 'networkd')
             msg = 'Replication interface now is {interface}'.format(interface=interface)
         self.safe_config('replication')
         return n4d.responses.build_successful_call_response(True, msg)
