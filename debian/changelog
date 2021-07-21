@@ -1,3 +1,9 @@
+n4d-network (1.38.1) focal; urgency=medium
+
+  * Restore version==1.37.1 functionality (networkd for replication) 
+
+ -- Juanma1980 <juanma1980@gmail.com>  Thu, 15 Jul 2021 15:31:20 +0200
+
 n4d-network (1.38) focal; urgency=medium
 
   * Restore version<=1.37 functionality (no networkd for replication) 
