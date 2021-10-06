@@ -1,3 +1,9 @@
+n4d-network (1.30) bionic; urgency=medium
+
+  * Added new cleaning functions
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Wed, 06 Oct 2021 11:19:12 +0200
+
 n4d-network (1.29) bionic; urgency=medium
 
   * Moved set_replica_interface from n4d-ldap
