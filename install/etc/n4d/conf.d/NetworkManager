@@ -27,4 +27,6 @@ backup=sudo,admins
 restore=sudo,admins
 check_devices=sudo,admins
 clean_nat_services=sudo,admins
+clean_mirror_redirect_service=sudo,admins
+unset_replication_vars=sudo,admins
 get_replication_network=anonymous
