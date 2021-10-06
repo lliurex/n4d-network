@@ -104,7 +104,7 @@ class NetworkManager:
 
 	def set_replicate_interface(self, interface ):
 		objects['VariablesManager'].init_variable("INTERFACE_REPLICATION",{"INTERFACE_REPLICATION":interface})
-		selt.replication_interface = interface
+		self.replication_interface = interface
 		return {"status":True,"msg":"Interface " + str(interface) + " is replication interface now"}
 	#def set_replicate_interface
 
@@ -264,6 +264,27 @@ class NetworkManager:
 			self.systemdmanager.StopUnit(service[0].lower(),'replace')
 		return {'status': True, 'msg':'All nat services has been disabled'}
 	#def clean_nat_services
+
+	def clean_mirror_redirect_service(self):
+		unit_name = 'net-mirror-llx19.mount'
+		if len(self.systemdmanager.ListUnitsByNames([unit_name])) != 0:
+			try:
+				self.systemdmanager.StopUnit(unit_name,'replace')
+				self.systemdmanager.DisableUnitFiles([unit_name],False)
+			except Exception as e:
+				pass
+			return {"status": True,"msg": "Cleared mirror-redirect service"}
+		return {"status": True,"msg": "mirror-redirect clear not needed"}
+	#def clean_mirror_redirect_service
+	
+	def unset_replication_vars(self):
+		if objects["VariablesManager"].get_variable("INTERFACE_REPLICATION")!=None:
+			objects["VariablesManager"].set_variable('INTERFACE_REPLICATION',None)
+		if objects["VariablesManager"].get_variable("REPLICATION_NETWORK")!=None:
+			objects["VariablesManager"].set_variable('REPLICATION_NETWORK',None)
+		return {"status":True,"msg":"Cleared replication vars" }
+	#def unset_replication_vars
+
 
 	def get_nat(self):
 		if self.external_interface == None:
