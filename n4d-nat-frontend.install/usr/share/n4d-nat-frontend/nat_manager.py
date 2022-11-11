@@ -172,34 +172,34 @@ class NatManager:
 		vbox.pack_start(tmp_hbox,True,True,3)
 		vbox.pack_start(Gtk.Separator(),True,True,3)
 
-		boxpro=Gtk.VBox()
-		lblpro=Gtk.Label()
-		lblpro.props.halign=Gtk.Align.START
-		lblpro.set_markup('<span size="medium">%s</span>'%_("Proxy status"))
-		boxpro.add(lblpro)
-		self.lblpro_info=Gtk.Label()
-		self.lblpro_info.props.halign=Gtk.Align.START
-		self.lblpro_info.set_markup('<span size="small" color="grey">%s</span>'%_("Enable proxy in classroom clients"))
-		boxpro.add(self.lblpro_info)
-		self.swtpro=Gtk.Switch()
-		self.swtpro.props.halign=Gtk.Align.END
-		self.swtpro.set_active(self.status["proxy"])
+		#boxpro=Gtk.VBox()
+		#lblpro=Gtk.Label()
+		#lblpro.props.halign=Gtk.Align.START
+		#lblpro.set_markup('<span size="medium">%s</span>'%_("Proxy status"))
+		#boxpro.add(lblpro)
+		#self.lblpro_info=Gtk.Label()
+		#self.lblpro_info.props.halign=Gtk.Align.START
+		#self.lblpro_info.set_markup('<span size="small" color="grey">%s</span>'%_("Enable proxy in classroom clients"))
+		#boxpro.add(self.lblpro_info)
+		#self.swtpro=Gtk.Switch()
+		#self.swtpro.props.halign=Gtk.Align.END
+		#self.swtpro.set_active(self.status["proxy"])
 
 		
-		tmp_hbox=Gtk.HBox()
-		tmp_hbox.pack_start(boxpro,False,False,0)
-		tmp_hbox.pack_end(self.swtpro,False,False,0)
-		vbox.pack_start(tmp_hbox,True,True,3)
+		#tmp_hbox=Gtk.HBox()
+		#tmp_hbox.pack_start(boxpro,False,False,0)
+		#tmp_hbox.pack_end(self.swtpro,False,False,0)
+		#vbox.pack_start(tmp_hbox,True,True,3)
 		
 		self.msg_label=Gtk.Label()
 		vbox.pack_start(self.msg_label,True,True,10)
 
 		self.swtnat.connect("state-set",self.routing_changed)
 		self.swtrou.connect("state-set",self.routing_changed)
-		self.swtpro.connect("state-set",self.routing_changed)
+		#self.swtpro.connect("state-set",self.routing_changed)
 		
-		if not self.status["nat"] or not self.status["routing"]:
-			self.swtpro.set_sensitive(False)
+		#if not self.status["nat"] or not self.status["routing"]:
+	 	#	self.swtpro.set_sensitive(False)
 
 		main_vbox.pack_start(vbox,True,True,0)
 		self.window.add(main_vbox)
@@ -230,16 +230,16 @@ class NatManager:
 			print("NAT change %s"%state)
 			#Old n4d: self.n4dclient.set_nat(self.key, "NetworkManager", state,self.status["nat_persistence"], self.external_interface)
 			self.n4dclient.NetworkManager.set_nat(state,self.status["nat_persistence"], self.external_interface)
-		elif widget==self.swtpro:
-			self.set_client_proxy(state)
+		#elif widget==self.swtpro:
+		#	self.set_client_proxy(state)
 
-		if self.swtrou.get_active() and self.swtnat.get_active():
-			self.swtpro.set_sensitive(True)
-		else:
-#			self.set_client_proxy(True)
-#			self.lblpro_info.set_markup('<span size="small" color="grey">%s</span>'%_("Actual state is enabled"))
-			self.swtpro.set_sensitive(False)
-			self.swtpro.set_state(True)
+		#if self.swtrou.get_active() and self.swtnat.get_active():
+		#	self.swtpro.set_sensitive(True)
+		#else:
+                #	self.set_client_proxy(True)
+                #	self.lblpro_info.set_markup('<span size="small" color="grey">%s</span>'%_("Actual state is enabled"))
+		#	self.swtpro.set_sensitive(False)
+		#	self.swtpro.set_state(True)
 	#def routing_changed
 	
 	def set_client_proxy(self,state):
