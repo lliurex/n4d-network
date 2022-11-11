@@ -1,3 +1,9 @@
+n4d-network (1.39) focal; urgency=medium
+
+  * Remove proxy button
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 11 Nov 2022 11:15:25 +0100
+
 n4d-network (1.38.1) focal; urgency=medium
 
   * Restore version==1.37.1 functionality (networkd for replication) 
