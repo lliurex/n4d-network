@@ -199,7 +199,7 @@ class NatManager:
 		#self.swtpro.connect("state-set",self.routing_changed)
 		
 		#if not self.status["nat"] or not self.status["routing"]:
-	 	#	self.swtpro.set_sensitive(False)
+		#	self.swtpro.set_sensitive(False)
 
 		main_vbox.pack_start(vbox,True,True,0)
 		self.window.add(main_vbox)
