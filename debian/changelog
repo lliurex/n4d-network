@@ -1,3 +1,9 @@
+n4d-network (1.40) focal; urgency=medium
+
+  * Remove proxy button
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 21 Nov 2022 10:38:38 +0100
+
 n4d-network (1.39.1) focal; urgency=medium
 
   * fix spaces
