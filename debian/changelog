@@ -1,3 +1,9 @@
+n4d-network (1.41) focal; urgency=medium
+
+  * Disable this app from zero-center
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 16 Dec 2022 14:38:10 +0100
+
 n4d-network (1.40) focal; urgency=medium
 
   * Remove proxy button
