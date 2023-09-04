@@ -1,0 +1,528 @@
+n4d-network (1.41) focal; urgency=medium
+
+  * Disable this app from zero-center
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 16 Dec 2022 14:38:10 +0100
+
+n4d-network (1.40) focal; urgency=medium
+
+  * Remove proxy button
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 21 Nov 2022 10:38:38 +0100
+
+n4d-network (1.39.1) focal; urgency=medium
+
+  * fix spaces
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 11 Nov 2022 11:40:05 +0100
+
+n4d-network (1.39) focal; urgency=medium
+
+  * Remove proxy button
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 11 Nov 2022 11:15:25 +0100
+
+n4d-network (1.38.1) focal; urgency=medium
+
+  * Restore version==1.37.1 functionality (networkd for replication) 
+
+ -- Juanma1980 <juanma1980@gmail.com>  Thu, 15 Jul 2021 15:31:20 +0200
+
+n4d-network (1.38) focal; urgency=medium
+
+  * Restore version<=1.37 functionality (no networkd for replication) 
+
+ -- Juanma1980 <juanma1980@gmail.com>  Thu, 15 Jul 2021 15:31:20 +0200
+
+n4d-network (1.37.2) focal; urgency=medium
+
+  * fix tab
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 13 Jul 2021 09:59:01 +0200
+
+n4d-network (1.37.1) focal; urgency=medium
+
+  * Replication interface rendered by networkd
+
+ -- Juanma1980 <juanma1980@gmail.com>  Mon, 12 Jul 2021 21:24:57 +0200
+
+n4d-network (1.37) focal; urgency=medium
+
+  * Fixed backup function
+  * clean_mirror_redirect_service & unset_replication_vars
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Tue, 06 Jul 2021 13:44:01 +0200
+
+n4d-network (1.36.1) focal; urgency=medium
+
+  * Fixed n4d module loading
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Tue, 06 Jul 2021 10:16:18 +0200
+
+n4d-network (1.36) focal; urgency=medium
+
+  * New methods "clean_mirror_redirect_service & unset_replication_vars
+
+ -- M.Angel Juan <m.angel.juan@gmail.com>  Mon, 05 Jul 2021 19:45:16 +0200
+
+n4d-network (1.35) focal; urgency=medium
+
+  * Fixed nat-manager gui
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 26 May 2021 15:37:21 +0200
+
+n4d-network (1.34) focal; urgency=medium
+
+  * Added network manager restart in restart_ifaces. Seems nm still believes
+    it handles internal and external interface. needs a restart
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Mon, 15 Feb 2021 13:26:51 +0100
+
+n4d-network (1.33) focal; urgency=medium
+
+  * Added restart_ifaces function
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Mon, 15 Feb 2021 10:52:15 +0100
+
+n4d-network (1.32.4) focal; urgency=medium
+
+  * Fixed network value
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 12 Feb 2021 12:41:15 +0100
+
+n4d-network (1.32.3) focal; urgency=medium
+
+  * Minor bugs fixed
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 09 Feb 2021 14:43:12 +0100
+
+n4d-network (1.32.2) focal; urgency=medium
+
+  * Bug: code wrong on enablenat script
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 09 Feb 2021 13:19:19 +0100
+
+n4d-network (1.32.1) focal; urgency=medium
+
+  * Read correctly n4d vars
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 09 Feb 2021 00:47:24 +0100
+
+n4d-network (1.32) focal; urgency=medium
+
+  * Migrate nat script to python3 
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 08 Feb 2021 22:57:32 +0100
+
+n4d-network (1.31.1) focal; urgency=medium
+
+  * Remove old dependency
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 08 Feb 2021 16:44:24 +0100
+
+n4d-network (1.31) focal; urgency=medium
+
+  * Merge with new code
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 08 Feb 2021 16:11:12 +0100
+
+n4d-network (1.30.1) focal; urgency=medium
+
+  * replace depends to python 3 version
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 05 Feb 2021 18:37:18 +0100
+
+n4d-network (1.30) focal; urgency=medium
+
+  * Migrate n4d-network to focal
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 05 Feb 2021 18:06:41 +0100
+
+n4d-network (1.29) bionic; urgency=medium
+
+  * Moved set_replica_interface from n4d-ldap
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 01 Jun 2020 15:16:18 +0200
+
+n4d-network (1.28) bionic; urgency=medium
+
+  * Add function to get replication network
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 21 Feb 2020 14:51:33 +0100
+
+n4d-network (1.27) bionic; urgency=medium
+
+  * Add new method to enable nat for replication interface
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 11 Feb 2020 13:18:09 +0100
+
+n4d-network (1.26) bionic; urgency=medium
+
+  * Add new method to clean nat interfaces
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Thu, 30 Jan 2020 11:01:02 +0100
+
+n4d-network (1.25) bionic; urgency=medium
+
+  * Add use-domains false to fix problem with lliurex-guard.
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 30 Aug 2019 14:14:50 +0200
+
+n4d-network (1.24) bionic; urgency=medium
+
+  * adding ca@valencia
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Fri, 26 Jul 2019 11:35:26 +0200
+
+n4d-network (1.23) bionic; urgency=medium
+
+  * Added systemd-resovled restart after netplan-apply
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Thu, 18 Jul 2019 09:21:48 +0200
+
+n4d-network (1.22) bionic; urgency=medium
+
+  * No remove netplan files if there's not network configured at interfaces file
+
+ -- Juanma Navarro Mañez <juanma1980@gmail.com>  Mon, 01 Jul 2019 14:54:53 +0200
+
+n4d-network (1.21) bionic; urgency=medium
+
+  * Fixed get_nat_persistence function
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 26 Jun 2019 10:08:27 +0200
+
+n4d-network (1.20) bionic; urgency=medium
+
+  * Restored makedir method
+
+ -- Juanma Navarro Mañez <juanma1980@gmail.com>  Tue, 25 Jun 2019 08:28:18 +0200
+
+n4d-network (1.19) bionic; urgency=medium
+
+  * Implmented migration NM->NP when restoring backup from xenial
+
+ -- Juanma Navarro Mañez <juanma1980@gmail.com>  Mon, 03 Jun 2019 09:15:52 +0200
+
+n4d-network (1.18) bionic; urgency=medium
+
+  * networkd as renderer for our interfaces
+
+ -- Juanma Navarro Mañez <juanma1980@gmail.com>  Tue, 21 May 2019 11:58:50 +0200
+
+n4d-network (1.17.6) bionic; urgency=medium
+
+  * Adding sudo group to zomando
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Fri, 29 Mar 2019 13:37:02 +0100
+
+n4d-network (1.17.5) bionic; urgency=medium
+
+  * Adding sudo group
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Thu, 14 Feb 2019 12:26:14 +0100
+
+n4d-network (1.17.4) bionic; urgency=medium
+
+  * Fix problem with dbus exception
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 03 Dec 2018 14:46:57 +0100
+
+n4d-network (1.17.3) bionic; urgency=medium
+
+  * Alias network manager
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 03 Dec 2018 14:10:14 +0100
+
+n4d-network (1.17.2) bionic; urgency=medium
+
+  * Add dependency to n4d-network
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 03 Dec 2018 13:32:31 +0100
+
+n4d-network (1.17.1) bionic; urgency=medium
+
+  * Add function to etc file
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 03 Dec 2018 13:26:33 +0100
+
+n4d-network (1.17) bionic; urgency=medium
+
+  * Add function to wait interfaces correctly configured 
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 03 Dec 2018 12:37:54 +0100
+
+n4d-network (1.16.1) bionic; urgency=medium
+
+  * Fix typo
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 29 Oct 2018 18:32:06 +0100
+
+n4d-network (1.16) bionic; urgency=medium
+
+  * Sync with xenial version
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 29 Oct 2018 17:56:51 +0100
+
+n4d-network (1.15.2) bionic; urgency=medium
+
+  * Fix typo
+  * Load config on init
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 26 Oct 2018 12:53:41 +0200
+
+n4d-network (1.15.1) bionic; urgency=medium
+
+  * Fix replication function
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Thu, 25 Oct 2018 14:03:24 +0200
+
+n4d-network (1.15) bionic; urgency=medium
+
+  * Add backup and restore functions
+  * Clean code
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Thu, 25 Oct 2018 12:14:55 +0200
+
+n4d-network (1.14.3) bionic; urgency=medium
+
+  * Enhance responses of functions
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 24 Oct 2018 17:05:50 +0200
+
+n4d-network (1.14.2) bionic; urgency=medium
+
+  * Sync with master branch
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 24 Oct 2018 14:48:04 +0200
+
+n4d-network (1.14.1) bionic; urgency=medium
+
+  * Refactorize code
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 24 Oct 2018 13:52:01 +0200
+
+n4d-network (1.14) bionic; urgency=medium
+
+  * Add function to configure systemd-resolved
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 24 Oct 2018 10:06:16 +0200
+
+n4d-network (1.13.1) bionic; urgency=medium
+
+  * Modify response on is_static
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 23 Oct 2018 13:11:40 +0200
+
+n4d-network (1.13) bionic; urgency=medium
+
+  * Add new function for chech interface is static
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 23 Oct 2018 09:32:01 +0200
+
+n4d-network (1.12.4) bionic; urgency=medium
+
+  * Fix: Create netplan if these not exists
+  * Remove otf argument. Now you need restart network config
+  * Fix: Add function to write sysctl options
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 02 Oct 2018 12:42:23 +0200
+
+n4d-network (1.12.3) bionic; urgency=medium
+
+  * Dummy upgrade
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 01 Oct 2018 09:15:42 +0200
+
+n4d-network (1.12.2) bionic; urgency=medium
+
+  * Dummy upgrade
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 28 Sep 2018 14:33:03 +0200
+
+n4d-network (1.12.1) bionic; urgency=medium
+
+  * Dummy upgrade
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 28 Sep 2018 14:11:24 +0200
+
+n4d-network (1.12) bionic; urgency=medium
+
+  * Migrate project to Bionic
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 04 Sep 2018 10:01:47 +0200
+
+n4d-network (1.11.1) xenial; urgency=high
+
+  * Code cleaning
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Thu, 08 Feb 2018 13:13:42 +0100
+
+n4d-network (1.11) xenial; urgency=high
+
+  * Adding support to enable or disable client proxy configuration
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Thu, 08 Feb 2018 12:17:27 +0100
+
+n4d-network (1.10) xenial; urgency=high
+
+  * Adding replication interface clean when initializing
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Mon, 16 Oct 2017 16:53:01 +0200
+
+n4d-network (1.9.3) xenial; urgency=high
+
+  * Adding ip addr flush when configuring interfaces
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Tue, 02 May 2017 17:23:20 +0200
+
+n4d-network (1.9.2-lliurex3) xenial; urgency=medium
+
+  * Add desktop file
+
+ -- lliurex <lliurex@localhost.localdomain>  Thu, 09 Feb 2017 11:48:54 +0100
+
+n4d-network (1.9.2-lliurex2) xenial; urgency=medium
+
+  * Update valencian translations 
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 28 Sep 2016 12:58:34 +0200
+
+n4d-network (1.9.2-lliurex1) xenial; urgency=medium
+
+  * Dropped lliurex-disable-upstart-services dependency
+  * Add warning in deprecated function
+
+ -- M.Angel Juan <m.angel.juan@gmail.com>  Wed, 03 Feb 2016 11:39:05 +0100
+
+n4d-network (1.9.2) xenial; urgency=high
+
+  * First Xenial release
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Mon, 01 Feb 2016 14:46:16 +0100
+
+n4d-network (1.9.1) trusty; urgency=high
+
+  * Updated translation
+
+ -- Angel Berlanas Vicente <angel.berlanas@gmail.com>  Mon, 25 May 2015 13:14:55 +0200
+
+n4d-network (1.9) trusty; urgency=high
+
+  * Restarting internal interface right after its initialization
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Wed, 22 Apr 2015 09:32:10 +0200
+
+n4d-network (1.8) trusty; urgency=high
+
+  * Added python-minimal as build depends
+
+ -- Alfons Lloret Sananton <turix13@gmail.com>  Tue, 30 Sep 2014 16:18:33 +0200
+
+n4d-network (1.7) trusty; urgency=high
+
+  *  New releases for LliureX 15.06 
+
+ -- Alfons Lloret Sananton <turix13@gmail.com>  Tue, 30 Sep 2014 13:58:39 +0200
+
+n4d-network (1.6) precise; urgency=high
+
+  * Added new functions for backup & restore network files
+
+ -- Daniel Duran Vecino <daduve@gmail.com>  Thu, 18 Sep 2014 12:47:14 +0200
+
+n4d-network (1.5) precise; urgency=high
+
+  * Added Banner for Zero Center
+
+ -- Jose Alfredo Murcia Andres <joamuran@gmail.com>  Fri, 09 May 2014 12:45:03 +0200
+
+n4d-network (1.4) precise; urgency=low
+
+  * UNRELEASED
+
+ -- Hector Garcia Huerta <cless@anubis.lliurex.fs>  Mon, 24 Jun 2013 12:16:08 +0200
+
+n4d-network (1.3) precise; urgency=high
+
+  * Added n4d-nat-frontend
+
+ -- Hector Garcia Huerta <hectorgh@gmail.com>  Sun, 23 Jun 2013 21:41:51 +0200
+
+n4d-network (1.2) precise; urgency=low
+
+  * interface_dhcp and interface_static now can apply changes on the fly.
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Sun, 23 Jun 2013 20:58:35 +0200
+
+n4d-network (1.1) precise; urgency=low
+
+  * Added functions to query nat and routing persistence
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 21 Jun 2013 23:40:20 +0200
+
+n4d-network (1.0) precise; urgency=low
+
+  * Add dns-search when ip is configured statically
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 17 Jun 2013 18:53:46 +0200
+
+n4d-network (0.9) precise; urgency=low
+
+  * Get internal interfaces read INTERNAL_INTERFACES file directly
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Thu, 13 Jun 2013 17:50:05 +0200
+
+n4d-network (0.8) precise; urgency=low
+
+  * Added set_nat to configuration file
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Thu, 13 Jun 2013 17:10:20 +0200
+
+n4d-network (0.7) precise; urgency=low
+
+  * Added function to enable nat
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 08 Jun 2013 10:24:13 +0200
+
+n4d-network (0.6) precise; urgency=low
+
+  * Added function to disable network-manager
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 22 May 2013 19:33:40 +0200
+
+n4d-network (0.5.1) precise; urgency=low
+
+  * Fix bug on interface_static when gateway is None.
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 07 May 2013 13:01:09 +0200
+
+n4d-network (0.5) precise; urgency=low
+
+  * First version working
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 19 Apr 2013 09:40:29 +0200
+
+n4d-network (0.4) precise; urgency=low
+
+  * Fix temporally broken code
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Mon, 11 Mar 2013 14:06:21 +0100
+
+n4d-network (0.3) precise; urgency=low
+
+  * Added depend with python-llxnet
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 27 Feb 2013 12:51:07 +0100
+
+n4d-network (0.2) precise; urgency=low
+
+  * Update to fix postinst and preinst
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Wed, 27 Feb 2013 12:49:18 +0100
+
+n4d-network (0.1) precise; urgency=low
+
+  * Initial Release.
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Tue, 12 Feb 2013 09:33:47 +0100
