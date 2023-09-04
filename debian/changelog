@@ -1,3 +1,9 @@
+n4d-network (1.51) jammy; urgency=medium
+
+  * Initial release for jammy
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 04 Sep 2023 12:16:12 +0200
+
 n4d-network (1.41) focal; urgency=medium
 
   * Disable this app from zero-center
