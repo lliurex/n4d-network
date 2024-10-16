@@ -1,3 +1,9 @@
+n4d-network (1.61) noble; urgency=medium
+
+  * Initial release for noble
+
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 16 Oct 2024 13:56:36 +0200
+
 n4d-network (1.51) jammy; urgency=medium
 
   * Initial release for jammy
